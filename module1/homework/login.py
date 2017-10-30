@@ -14,7 +14,6 @@
 #         print ("用户名密码错误，请重新输入\n你还有%s次机会") %(3-n)
 #         n += 1
 #201710209第二版本
-import csv
 import os
 import getpass
 n = 0
