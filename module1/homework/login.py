@@ -22,11 +22,15 @@ while n < 3:
     username = input("Please input username: ")
     password = input("Please input password: ")
     #password = getpass.getpass("Please input password")
-    f = open("badlist",'r')
-    if username in [x.strip(os.linesep) for x in f.readlines()]:
-        print(username+" locked")
-        break
-    f.close()
+    # f = open("badlist",'r')
+    # if username in [x.strip(os.linesep) for x in f.readlines()]:
+    #     print(username+" locked")
+    #     break
+    # f.close()
+    with open('badlist','r') as f:
+        if username in [x.strip(os.linesep) for x in f.readlines()]:
+            print(username+" locked")
+            break
     with open('passwd.csv','r') as f:
         for line in f.readlines():
             dict1[line.split(",")[0]]=line.split(",")[1].strip("\n")
