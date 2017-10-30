@@ -73,5 +73,6 @@ while True:
             n += 1
     else:
         print("bye bye!")
-        with open('badlist','w') as f:
+        with open('badlist','a') as f:
             f.write(username)
+        break
