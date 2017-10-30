@@ -52,8 +52,8 @@ import sys
 while True:
     username=input("username: ")
     dict={}
-    if os.path.exists("passwd.csv"):
-        if os.path.getsize("passwd.csv"):
+    if os.path.exists("passwd.csv"):   #判断密码文件是否存在
+        if os.path.getsize("passwd.csv"):  #判断密码文件是否为空
             with open("passwd.csv","r") as f:
                 for line in f.readlines():
                     dict[line.split(",")[0]]=line.split(",")[1].strip("\n")
@@ -61,18 +61,18 @@ while True:
                     print("unknown username")
                     continue
         else:
-            print("passwd file isempty！")
+            print("passwd file is empty！")
     else:
         print("passwd file not found")
         sys.exit(1)
-    if os.path.exists("badlist"):
+    if os.path.exists("badlist"):    #判断是否存在黑名单
         with open("badlist","r") as f:
             if username in [x.strip(os.linesep) for x in f.readlines()]:
                 print("user locked")
                 continue
     n = 0
     while n < 3:
-        password=input("password: ")
+        password=input("password: ")    #输入密码
         if dict[username]==password:
             print("welcome man!")
             sys.exit(0)
@@ -80,7 +80,7 @@ while True:
             print("invalid password！")
             n += 1
     else:
-        print("bye bye!")
+        print("bye bye!locked")
         with open('badlist','a') as f:
             f.write(username)
         break
