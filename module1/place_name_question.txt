@@ -1,0 +1,2 @@
+1、在嵌套try...except中，内部想使用sys.exit退出程序，但是没成功，是因为sys.exit是抛出SystemExit异常，被上层捕获到。
+如果想直接退出程序，使用os._exit(status)

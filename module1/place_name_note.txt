@@ -1,4 +1,3 @@
-1、在while或for循环结束后使用else，else中的内容只有在while或for正常执行完成之后才能执行，如果中途跳出循环，则不执行else中的内容
 2、在使用字典时，如果字典较大，不要使用:
     for key, value in the_dict.items()      # 会先把dict转换为list
         print(key, value)

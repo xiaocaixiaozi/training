@@ -40,12 +40,12 @@ for count in range(3):      # 最多尝试输入三次密码
     if pass_dict.get(username):     # 判断账号是否存在
         try:
             password = getpass.getpass('Login_pass: ').strip()
+            password = hash_pass(password)  # 对比密码加密串
+            if pass_dict.get(username).strip() == password:
+                print('Welcome to %s !' % username)
+                break
         except KeyboardInterrupt as e:
             exit(1)
-        password = hash_pass(password)      # 对比密码加密串
-        if pass_dict.get(username).strip() == password:
-            print('Welcome to %s !' % username)
-            break
     else:       # 账号不存在则退出
         print('This account don\'t exist. [ %s ]' % username)
         break
