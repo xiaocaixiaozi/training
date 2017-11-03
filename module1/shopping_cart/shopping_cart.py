@@ -7,13 +7,6 @@ import os
 
 balance_file = 'balance'    #存储余额的文件
 shelf_file = 'shelf'    #存储商品的文件
-'''
-storage_rack = {}   #货架字典
-with open(shelf_file, 'r', encoding='utf-8') as f:
-    for line in f.readlines():
-        product, price = line.split(':')
-        storage_rack[product] = price
-'''
 user_dict = {'1': '商家', '2':'用户'}
 for user_id, user_type in user_dict.items():
     print(user_id + ' : ' + user_type)
