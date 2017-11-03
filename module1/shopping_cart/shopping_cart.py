@@ -7,6 +7,13 @@ import os
 
 balance_file = 'balance'    #存储余额的文件
 shelf_file = 'shelf'    #存储商品的文件
+last_file = 'Last_con'  #存储上次消费的商品记录
+last_list = []
+if os.path.exists(last_file):
+    with open(last_file, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.split(':')
+            last_list.append((line[0].strip(), line[1].strip()))
 user_dict = {'1': '商家', '2':'用户'}
 for user_id, user_type in user_dict.items():
     print(user_id + ' : ' + user_type)
@@ -79,7 +86,7 @@ else:       # 用户
     for num in shelf_dict.keys():
         print(num + '. ' + '[' + shelf_dict[num][0] + ' : ' + shelf_dict[num][1] + ']')
     while 1:
-        print('Usage: q to quit; num to buy; l to list'.center(50, '-'))
+        print('Usage: q to quit; num to buy; l to list; last to list last purchase recod.'.center(50, '-'))
         choice = input('Choice: ').strip()
         if choice == 'q':       # 退出
             print('You have purchased:')
@@ -88,7 +95,13 @@ else:       # 用户
             print('Your balance is : \033[1;32m %d \033[0m' % balance)
             with open(balance_file, 'w', encoding='utf-8') as f:
                 f.write(str(balance))
+            with open(last_file, 'w', encoding='utf-8') as f:
+                for l in shop_list:
+                    f.write(l[0] + ':' + l[1] + '\n')
             break
+        if choice == 'last':        #显示上次的购买记录
+            for la in last_list:
+                print(la)
         if choice == 'l':       # 显示当前已购买的货物
             print('Current product list is:')
             for shop_product in shop_list:
