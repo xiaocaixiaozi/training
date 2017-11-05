@@ -1,5 +1,5 @@
 # training
-###python自动化训练
+# python自动化学习
 
 作业提交内容：
 1、笔记
