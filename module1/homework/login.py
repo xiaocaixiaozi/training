@@ -46,7 +46,7 @@
 #     print("user locked.fuck off!")
 #     with open("badlist",'w') as f:
 #         f.write(username)
-#20171030第三版   
+#20171030第三版
 import os
 import sys
 while True:
@@ -71,6 +71,7 @@ while True:
                 print("user locked")
                 continue
     n = 0
+
     while n < 3:
         password=input("password: ")    #输入密码
         if dict[username]==password:
