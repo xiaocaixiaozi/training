@@ -4,23 +4,6 @@
 
 import sqlite3
 
-db = 'test.db'
-user_table = 'users'
-lock_table = 'lock'
-
-create_user_sql = '''CREATE TABLE IF NOT EXISTS %s(
-    card_num char(15) primary key not null,
-    user_name char(10) not null,
-    balance int not null,
-    age char(3),
-    address
-);''' % user_table
-create_lock_sql = 'CREATE TABLE IF NOT EXISTS %s(card_num char(15) primary key not null);' % lock_table
-insert_user_sql = 'INSERT INTO %s values(%s, "%s", %s, %s, "%s");'
-insert_lock_sql = 'INSERT INTO %s values(%s);'
-update_sql = 'UPDATE %s SET %s = "%s" WHERE card_num = "%s";'
-select_sql = 'SELECT * FROM %s WHERE card_num = "%s";'
-
 def close_db(cursor, conn):
 
     '''
@@ -63,11 +46,11 @@ def define_sql(the_sql, data, table):
     :return: 返回格式化之后的sql语句
     '''
 
-    if table == user_table:
-        card_num, user_name, balance, age, address = data
-        sql = the_sql % (table, card_num, user_name, balance, age, address)
+    if table == 'users':
+        card_num, user_name, password, balance, age, address = data
+        sql = the_sql % (table, card_num, user_name, password, balance, age, address)
         return sql
-    if table == lock_table:
+    if table == 'lock':
         return the_sql % (table, data[0])
 
 def insert_table(db, create_table_sql, the_table, insert_sql, data):
@@ -78,7 +61,7 @@ def insert_table(db, create_table_sql, the_table, insert_sql, data):
     :param create_table_sql: 创建表的sql语句
     :param the_table: 操作的数据库表名
     :param insert_sql: 插入的sql语句
-    :param data: 要插入的数据，users表：[卡号]；lock表：[卡号，用户名，余额，年龄，地址]
+    :param data: 要插入的数据，lock表：[卡号]；users表：[卡号,用户名,密码,余额,年龄,地址]
     :return: True为插入成功，False则失败
     '''
 
@@ -103,7 +86,7 @@ def update_table(db, table, update_sql, data):
     :param db: 要操作的数据库名
     :param table: 要更新的表名
     :param update_sql: 要执行的sql语句
-    :param data: 传入需要更新的数据，需要传入列表 [字段名，值，卡号]
+    :param data: 传入需要更新的数据，需要传入列表 [字段名,值,卡号]
     :return: 更新成功返回True，失败则为False
     '''
 
@@ -120,7 +103,7 @@ def update_table(db, table, update_sql, data):
     close_db(cursor, conn)
     return True
 
-def select_table(db, select_sql, the_table, card_num):
+def select_table(db, select_sql, the_table, card_num=None):
 
     '''
     查询数据
@@ -131,9 +114,17 @@ def select_table(db, select_sql, the_table, card_num):
     :return: 返回查询的结果
     '''
 
+    select_all_sql = 'SELECT * FROM %s;'
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
+    if not card_num:
+        cur = cursor.execute(select_all_sql % the_table)
+        data = cur.fetchall()
+        close_db(cursor, conn)
+        return data
     cur = cursor.execute(select_sql % (the_table, card_num))
     data = cur.fetchall()
     close_db(cursor, conn)
     return data
+
+
