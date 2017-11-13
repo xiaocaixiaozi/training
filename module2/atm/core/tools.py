@@ -13,8 +13,3 @@ def hash(data):
     e = sha1()
     e.update(data.encode('utf-8'))
     return e.hexdigest()
-
-
-
-
-

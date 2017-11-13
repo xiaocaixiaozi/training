@@ -127,4 +127,3 @@ def select_table(db, select_sql, the_table, card_num=None):
     close_db(cursor, conn)
     return data
 
-
