@@ -26,6 +26,7 @@ insert_user_sql = 'INSERT INTO %s values(%s, "%s", "%s", %s, "%s", "%s");'
 insert_lock_sql = 'INSERT INTO %s values(%s);'
 update_sql = 'UPDATE %s SET %s = "%s" WHERE card_num = "%s";'
 select_sql = 'SELECT * FROM %s WHERE card_num = "%s";'
+select_lock_sql = 'SELECT * FROM lock;'
 
 def atm_auth(func):
     '''
@@ -175,9 +176,67 @@ def transfer(user_data):
     else:
         return True
 
-transfer()
+@atm_auth
+def cash(user_data):
+    '''
+    提现，扣取5%手续费
+    :param user_data: 由 atm_auth 返回
+    :return: 提取成功，返回True，否则返回False
+    '''
+    while 1:
+        money = input('请输入要提取的金额: [q to quit] ').strip()
+        if money == 'q':
+            return True
+        if not money.isdigit() and not isinstance(money, float):
+            print('输入错误.')
+            continue
+        money = int(money)
+        fee = money * 0.05
+        card_num, user_name, passwd, balance, age, address = user_data
+        balance = int(balance)
+        if money > balance or (money + fee) > balance:
+            print('余额不足.')
+            continue
+        else:
+            balance = balance - money - fee
+            result = db_setting.update_table(db, user_table, update_sql, ['balance', balance, card_num])
+            if result:
+                print('提现成功.')
+                return True
+            else:
+                return False
+
+@atm_auth
+def lock_user(user_data):
+    '''
+    锁定账号
+    :param user_data: 由atm_auth返回用户信息
+    :return: 锁定成功返回True，否则返回False
+    '''
+    card_num, user_name, passwd, balance, age, address = user_data
+    while 1:
+        sign = input('您确定锁定该账号吗？[Y/N]').strip().lower()
+        if sign == 'n':
+            break
+            return True
+        if sign == 'y':
+            result = db_setting.insert_table(db, create_lock_sql, lock_table, insert_lock_sql, [card_num])
+            if result:
+                print('已成功锁定，如需解锁请到柜台操作.')
+                return True
+            else:
+                return False
+
+def get_lock_info():
+    data = db_setting.select_table(db, select_lock_sql, lock_table)
+    return data
+
 
 # 当前创建的用户：
+# ('17559028', 'Jack', 'jack', 15000, '50', 'Chicago')
 # ('19696295', 'bloke', '12345', 11610, '23', 'Gehua')
 # ('17052578', 'anon', '54321', 15000, '24', 'Beijing')
-# ('10122658', '焦恩', '11111', 14910, '30', 'America')
+# ('10122658', '焦恩', '11111', 13860, '30', 'America')
+#
+# 当前锁定账号:
+# ('10122658',)

@@ -3,6 +3,11 @@
 # Author: bloke
 
 import sqlite3
+import os
+import sys
+import random
+project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_dir)
 
 def close_db(cursor, conn):
 
@@ -126,4 +131,5 @@ def select_table(db, select_sql, the_table, card_num=None):
     data = cur.fetchall()
     close_db(cursor, conn)
     return data
+
 
