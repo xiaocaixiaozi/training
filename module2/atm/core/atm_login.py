@@ -4,11 +4,11 @@
 
 import os
 import sys
-import random
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_dir)
 from conf import db_setting
 from core.tools import hash
+from core.tools import generate_card
 
 db = '../db/atm.db'
 user_table = 'users'
@@ -28,6 +28,26 @@ update_sql = 'UPDATE %s SET %s = "%s" WHERE card_num = "%s";'
 select_sql = 'SELECT * FROM %s WHERE card_num = "%s";'
 select_lock_sql = 'SELECT * FROM lock;'
 
+def get_lock_info():
+    '''
+    查询锁定卡号
+    '''
+    data = db_setting.select_table(db, select_lock_sql, lock_table)
+    return data
+
+def check_lock(card_num):
+    '''
+    检查卡号是否被锁定
+    :param card_num: 被检查的卡号
+    :return: 如果被锁定，返回True，否则返回False
+    '''
+    lock_user_data = db_setting.select_table(db, select_sql, lock_table)
+    checks = [card_num in user for user in lock_user_data]
+    if True in checks:
+        return True
+    else:
+        return False
+
 def atm_auth(func):
     '''
     用于信用卡用户登录认证，并且返回该用户的信息给func
@@ -41,6 +61,9 @@ def atm_auth(func):
                 print('请输入正确的信息.')
                 continue
             else:
+                if check_lock(card_num):
+                    print('此卡号已被锁定 [ \033[31;1m%s\033[0m ]\n如需解锁，请到柜台办理.' % card_num)
+                    return False
                 data = db_setting.select_table(db, select_sql, user_table, card_num)
                 if data:
                     real_password = data[0][2]
@@ -52,7 +75,6 @@ def atm_auth(func):
                         continue
         return result
     return wrapper
-
 
 def create_user(db=db, create_user_sql=create_user_sql, user_table=user_table, insert_user_sql=insert_user_sql):
     '''
@@ -77,7 +99,7 @@ def create_user(db=db, create_user_sql=create_user_sql, user_table=user_table, i
                 continue
             else:
                 break
-    card_num = random.randint(10000000, 19999999)
+    card_num = generate_card()
     print("为您发布信用卡: 卡号为\033[31;0m%s\033[0m, 余额为\033[32;0m15000\033[0m元人民币" % card_num)
     while 1:
         password = input('请输入密码：').strip()
@@ -227,9 +249,7 @@ def lock_user(user_data):
             else:
                 return False
 
-def get_lock_info():
-    data = db_setting.select_table(db, select_lock_sql, lock_table)
-    return data
+data = get_user_info()
 
 
 # 当前创建的用户：

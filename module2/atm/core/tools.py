@@ -3,6 +3,7 @@
 # Author: bloke
 
 from hashlib import sha1
+import random
 
 def hash(data):
     '''
@@ -13,3 +14,8 @@ def hash(data):
     e = sha1()
     e.update(data.encode('utf-8'))
     return e.hexdigest()
+
+def generate_card():
+    card_num = random.randint(10000000, 19999999)
+    return card_num
+
