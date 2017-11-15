@@ -4,6 +4,7 @@
 
 from hashlib import sha1
 import random
+import logging
 
 def hash(data):
     '''
@@ -18,4 +19,16 @@ def hash(data):
 def generate_card():
     card_num = random.randint(10000000, 19999999)
     return card_num
+
+def record_log(log_name):
+    logger = logging.Logger(log_name)
+    fh = logging.FileHandler(log_name, 'a', 'utf-8')
+    fh.setLevel(logging.INFO)
+    formatter = logging.Formatter(fmt='%(asctime)s [%(levelname)s] %(message)s', \
+                                  datefmt='%y/%m/%d %H:%M:%S')
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
+    return logger
+
+
 

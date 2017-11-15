@@ -5,9 +5,11 @@
 import sqlite3
 import os
 import sys
-import random
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(project_dir)
+from core.tools import record_log
+
+logger = record_log('../logs/db.log')   # 数据库操作日志
 
 def close_db(cursor, conn):
 
@@ -36,9 +38,11 @@ def create_table(db, create_sql):
     except:
         conn.rollback()
         close_db(cursor, conn)
+        logger.error(create_sql)
         return False
     conn.commit()
     close_db(cur, conn)
+    logger.info(create_sql)
     return True
 
 def define_sql(the_sql, data, table):
@@ -79,9 +83,11 @@ def insert_table(db, create_table_sql, the_table, insert_sql, data):
     except sqlite3.IntegrityError:
         conn.rollback()
         close_db(cursor, conn)
+        logger.error(sql)
         return False
     conn.commit()
     close_db(cursor, conn)
+    logger.info(sql)
     return True
 
 def update_table(db, table, update_sql, data):
@@ -95,17 +101,19 @@ def update_table(db, table, update_sql, data):
     :return: 更新成功返回True，失败则为False
     '''
 
-    column, volue, card_num = data
+    column, value, card_num = data
     conn = sqlite3.connect(db)
     cursor = conn.cursor()
     try:
-        cursor.execute(update_sql % (table, column, volue, card_num))
+        cursor.execute(update_sql % (table, column, value, card_num))
     except:
         conn.rollback()
         close_db(cursor, conn)
+        logger.error(update_sql % (table, column, value, card_num))
         return False
     conn.commit()
     close_db(cursor, conn)
+    logger.info(update_sql % (table, column, value, card_num))
     return True
 
 def select_table(db, select_sql, the_table, card_num=None):
@@ -126,10 +134,11 @@ def select_table(db, select_sql, the_table, card_num=None):
         cur = cursor.execute(select_all_sql % the_table)
         data = cur.fetchall()
         close_db(cursor, conn)
+        logger.info(select_all_sql % the_table)
         return data
     cur = cursor.execute(select_sql % (the_table, card_num))
     data = cur.fetchall()
     close_db(cursor, conn)
+    logger.info(select_sql % (the_table, card_num))
     return data
-
 

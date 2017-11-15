@@ -9,6 +9,7 @@ sys.path.append(project_dir)
 from conf import db_setting
 from core.tools import hash
 from core.tools import generate_card
+from core.tools import record_log
 
 db = '../db/atm.db'
 user_table = 'users'
@@ -27,12 +28,15 @@ insert_lock_sql = 'INSERT INTO %s values(%s);'
 update_sql = 'UPDATE %s SET %s = "%s" WHERE card_num = "%s";'
 select_sql = 'SELECT * FROM %s WHERE card_num = "%s";'
 select_lock_sql = 'SELECT * FROM lock;'
+atm_logger = record_log('../logs/atm.log')   # ATM操作日志
+# user_logger = record_log('../logs/%s.log')   # 账户流水，每个账户一个日志文件
 
 def get_lock_info():
     '''
     查询锁定卡号
     '''
     data = db_setting.select_table(db, select_lock_sql, lock_table)
+    atm_logger.info('Query lock the account table. <%s>' % select_lock_sql)
     return data
 
 def check_lock(card_num):
@@ -44,8 +48,10 @@ def check_lock(card_num):
     lock_user_data = db_setting.select_table(db, select_sql, lock_table)
     checks = [card_num in user for user in lock_user_data]
     if True in checks:
+        atm_logger.info('Test %s card number is locked. <locked>' % card_num)
         return True
     else:
+        atm_logger.info('Test %s card number is locked. <not locked>' % card_num)
         return False
 
 def atm_auth(func):
@@ -63,11 +69,13 @@ def atm_auth(func):
             else:
                 if check_lock(card_num):
                     print('此卡号已被锁定 [ \033[31;1m%s\033[0m ]\n如需解锁，请到柜台办理.' % card_num)
+                    atm_logger.warning('%s auth failed.' % card_num)
                     return False
                 data = db_setting.select_table(db, select_sql, user_table, card_num)
                 if data:
                     real_password = data[0][2]
                     if hash(password) == real_password:
+                        atm_logger.info('%s auth success.' % card_num)
                         result = func(user_data=data[0], *args, **kwargs)
                         break
                     else:
@@ -108,6 +116,10 @@ def create_user(db=db, create_user_sql=create_user_sql, user_table=user_table, i
             break
     result = db_setting.insert_table(db, create_user_sql, user_table, insert_user_sql, \
                             [card_num, username, password, 15000, age, address])
+    if result:
+        atm_logger.info('Create %s card number, the message is [%s, %s, %s].' % (card_num, username, age, address))
+    else:
+        atm_logger.error('Card number %s failed to be created, the message is [%s, %s, %s].' % (card_num, username, age, address))
     return result
 
 @atm_auth
@@ -115,6 +127,7 @@ def get_user_info(user_data):
     '''
     :return: 返回用户信息
     '''
+    atm_logger.info('Get user info. [%s]' % str(user_data))
     return user_data
 
 @atm_auth
@@ -140,9 +153,15 @@ def user_repay(user_data):
                 result = db_setting.update_table(db, user_table, update_sql, ['balance', balance, card_num])
                 if result:
                     print('还款成功')
+                    atm_logger.info('%s account successfully repay %s yuan.' % (card_num, money))
+                    user_logger = record_log('../logs/%s.log' % card_num)
+                    user_logger.info('repay %s yuan success.' % money)
                     return True
                 else:
                     print('还款失败')
+                    atm_logger.warning('%s account repayment failed.' % card_num)
+                    user_logger = record_log('../logs/%s.log' % card_num)
+                    user_logger.warning('repay %s yuan failed.' % money)
                     return False
 
 @atm_auth
@@ -187,13 +206,24 @@ def transfer(user_data):
                     if result:
                         print('成功转账 \033[31;1m%s\033[0m 给 \033[32;1m%s\033[0m (%s)' % \
                               (trans_money, trans_user_name, trans_card_num))
+                        atm_logger.info('[%s] account successfully transferred to [%s] account %s yuan.' % \
+                                        (card_num, trans_card_num, trans_money))
+                        user_logger = record_log('../logs/%s.log' % card_num)
+                        user_logger.info('transfer %s yuan to %s success.' % (trans_money, trans_card_num))
+                        return True
                     else:
                         trans_result = db_setting.update_table( \
                             db, user_table, update_sql,
                             ['balance', int(trans_balance) - int(trans_money), trans_card_num])
-                    return True
+                        atm_logger.error('%s account to %s account transfer failed.' % (card_num, trans_card_num))
+                        user_logger = record_log('../logs/%s.log' % card_num)
+                        user_logger.error('transfer %s yuan to %s failed.' % (trans_money, trans_card_num))
+                        return False
                 else:
                     print('转账失败')
+                    atm_logger.error('%s account to %s account transfer failed.' % (card_num, trans_card_num))
+                    user_logger = record_log('../logs/%s.log' % card_num)
+                    user_logger.error('transfer %s yuan to %s failed.' % (trans_money, trans_card_num))
                     return False
     else:
         return True
@@ -224,6 +254,9 @@ def cash(user_data):
             result = db_setting.update_table(db, user_table, update_sql, ['balance', balance, card_num])
             if result:
                 print('提现成功.')
+                atm_logger.info('%s account withdrawals %s yuan, after deducting the fee of %s yuan.' % (card_num, money, fee))
+                user_logger = record_log('../logs/%s.log' % card_num)
+                user_logger.info('withdraw %s yuan, after deducting the fee of %s yuan.' % (money, fee))
                 return True
             else:
                 return False
@@ -245,12 +278,17 @@ def lock_user(user_data):
             result = db_setting.insert_table(db, create_lock_sql, lock_table, insert_lock_sql, [card_num])
             if result:
                 print('已成功锁定，如需解锁请到柜台操作.')
+                atm_logger.info('%s account successfully locked.' % card_num)
+                user_logger = record_log('../logs/%s.log' % card_num)
+                user_logger.info('account successfully locked.' % card_num)
                 return True
             else:
+                atm_logger.warning('%s account lock failed.' % card_num)
+                user_logger = record_log('../logs/%s.log' % card_num)
+                user_logger.warning('account lock failed.' % card_num)
                 return False
 
-data = get_user_info()
-
+cash()
 
 # 当前创建的用户：
 # ('17559028', 'Jack', 'jack', 15000, '50', 'Chicago')

@@ -1,31 +1,26 @@
 #!/usr/bin/env python
 # coding=utf-8
 # Author: bloke
+# test logging model
 
+import logging
 
-# def fib(num):
-#     a, b, c = 1, 0, 1
-#     while a <= num:
-#         yield c
-#         b, c = c, b + c
-#         a += 1
-#
-# from collections import Iterable, Iterator
-#
-# print(isinstance(fib(10), Iterable))
-# print(isinstance(fib(10), Iterator))
-# print(isinstance(range(10), Iterable))
-#
-# print(dir(fib(10)))
+logger = logging.Logger(__name__)
+formatter = logging.Formatter(fmt='%(asctime)s [%(levelname)s] %(message)s', datefmt='%y/%m/%d %H:%M:%S')
 
-# from collections import Iterator
-#
-# print(isinstance(list(), Iterator))
-# print(isinstance(iter(list()), Iterator))
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(formatter)
 
-# f = open('one.txt', 'w', encoding='utf-8')
-# print('This is a test.', sep='|', end=' ', file=f)
-# f.close()
+fh = logging.FileHandler('test.log', 'a', 'utf-8')
+fh.setLevel(logging.WARNING)
+fh.setFormatter(formatter)
 
+logger.addHandler(ch)
+logger.addHandler(fh)
+
+logger.info('info.test')
+logger.warning('warning.test')
+logger.error('error.test')
 
 
