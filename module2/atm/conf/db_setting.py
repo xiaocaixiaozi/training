@@ -142,3 +142,8 @@ def select_table(db, select_sql, the_table, card_num=None):
     logger.info(select_sql % (the_table, card_num))
     return data
 
+
+
+
+
+

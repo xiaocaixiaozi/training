@@ -31,3 +31,52 @@
 17/11/15 11:21:32 [INFO] SELECT * FROM lock;
 17/11/15 11:21:32 [INFO] SELECT * FROM users WHERE card_num = "17052578";
 17/11/15 11:21:37 [INFO] UPDATE users SET balance = "14675.0" WHERE card_num = "17052578";
+17/11/15 22:11:16 [INFO] SELECT * FROM lock;
+17/11/15 22:11:16 [INFO] SELECT * FROM users WHERE card_num = "17052578";
+17/11/15 22:12:21 [INFO] SELECT * FROM lock;
+17/11/15 22:12:21 [INFO] SELECT * FROM users WHERE card_num = "17052578";
+17/11/15 22:13:22 [INFO] SELECT * FROM lock;
+17/11/15 22:13:22 [INFO] SELECT * FROM users WHERE card_num = "17052578";
+17/11/15 22:13:51 [INFO] CREATE TABLE IF NOT EXISTS users(
+    card_num char(15) primary key not null,
+    user_name char(10) not null,
+    password char(50) not null,
+    balance int not null,
+    age char(3),
+    address
+);
+17/11/15 22:13:51 [INFO] INSERT INTO users values(17360935, "test01", "7b21848ac9af35be0ddb2d6b9fc3851934db8420", 15000, "10", "朝鲜");
+17/11/15 22:14:12 [INFO] SELECT * FROM lock;
+17/11/15 22:14:12 [INFO] SELECT * FROM users WHERE card_num = "17360935";
+17/11/15 22:16:24 [INFO] SELECT * FROM lock;
+17/11/15 22:16:24 [INFO] SELECT * FROM users WHERE card_num = "17360935";
+17/11/15 22:16:35 [INFO] SELECT * FROM lock;
+17/11/15 22:16:35 [INFO] SELECT * FROM users WHERE card_num = "17360935";
+17/11/15 22:16:41 [INFO] UPDATE users SET balance = "14895.0" WHERE card_num = "17360935";
+17/11/15 22:16:49 [INFO] SELECT * FROM lock;
+17/11/15 22:16:49 [INFO] SELECT * FROM users WHERE card_num = "17360935";
+17/11/15 22:16:59 [INFO] SELECT * FROM lock;
+17/11/15 22:16:59 [INFO] SELECT * FROM users WHERE card_num = "17360935";
+17/11/15 22:17:07 [INFO] SELECT * FROM users WHERE card_num = "17559028";
+17/11/15 22:17:12 [INFO] UPDATE users SET balance = "16000" WHERE card_num = "17559028";
+17/11/15 22:17:12 [INFO] UPDATE users SET balance = "13895" WHERE card_num = "17360935";
+17/11/15 22:17:27 [INFO] SELECT * FROM lock;
+17/11/15 22:17:27 [INFO] SELECT * FROM users WHERE card_num = "17559028";
+17/11/15 22:17:38 [INFO] SELECT * FROM lock;
+17/11/15 22:17:38 [INFO] SELECT * FROM users WHERE card_num = "17360935";
+17/11/15 22:17:40 [INFO] CREATE TABLE IF NOT EXISTS lock(card_num char(15) primary key not null);
+17/11/15 22:17:40 [INFO] INSERT INTO lock values(17360935);
+17/11/15 22:19:13 [INFO] SELECT * FROM lock;
+17/11/15 22:19:38 [INFO] SELECT * FROM lock;
+17/11/15 22:19:38 [INFO] SELECT * FROM users WHERE card_num = "19696295";
+17/11/15 23:00:10 [INFO] SELECT * FROM lock;
+17/11/15 23:02:02 [INFO] SELECT * FROM lock;
+17/11/15 23:02:02 [INFO] SELECT * FROM users WHERE card_num = "19696295";
+17/11/15 23:04:12 [INFO] SELECT * FROM lock;
+17/11/15 23:04:12 [INFO] SELECT * FROM users WHERE card_num = "19696295";
+17/11/15 23:05:45 [INFO] SELECT * FROM lock;
+17/11/15 23:05:45 [INFO] SELECT * FROM users WHERE card_num = "19696295";
+17/11/15 23:05:45 [INFO] UPDATE users SET balance = "8810" WHERE card_num = "19696295";
+17/11/15 23:10:08 [INFO] SELECT * FROM lock;
+17/11/15 23:10:08 [INFO] SELECT * FROM users WHERE card_num = "17559028";
+17/11/15 23:10:08 [INFO] UPDATE users SET balance = "15100" WHERE card_num = "17559028";

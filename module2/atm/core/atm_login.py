@@ -29,7 +29,6 @@ update_sql = 'UPDATE %s SET %s = "%s" WHERE card_num = "%s";'
 select_sql = 'SELECT * FROM %s WHERE card_num = "%s";'
 select_lock_sql = 'SELECT * FROM lock;'
 atm_logger = record_log('../logs/atm.log')   # ATM操作日志
-# user_logger = record_log('../logs/%s.log')   # 账户流水，每个账户一个日志文件
 
 def get_lock_info():
     '''
@@ -53,6 +52,10 @@ def check_lock(card_num):
     else:
         atm_logger.info('Test %s card number is locked. <not locked>' % card_num)
         return False
+
+def update_user_data(key, value, card_num):
+    result = db_setting.update_table(db, user_table, update_sql, [key, value, card_num])
+    return result
 
 def atm_auth(func):
     '''
@@ -95,7 +98,6 @@ def create_user(db=db, create_user_sql=create_user_sql, user_table=user_table, i
             data = input('输入个人信息，以逗号分隔: [用户名, 年龄, 地址] ').strip()
         except:
             break
-            sys.exit(1)
         if len(data.split(',')) != 3:
             print('请输入正确的信息.')
             continue
@@ -280,7 +282,7 @@ def lock_user(user_data):
                 print('已成功锁定，如需解锁请到柜台操作.')
                 atm_logger.info('%s account successfully locked.' % card_num)
                 user_logger = record_log('../logs/%s.log' % card_num)
-                user_logger.info('account successfully locked.' % card_num)
+                user_logger.info('account successfully locked.')
                 return True
             else:
                 atm_logger.warning('%s account lock failed.' % card_num)
@@ -288,13 +290,12 @@ def lock_user(user_data):
                 user_logger.warning('account lock failed.' % card_num)
                 return False
 
-cash()
-
 # 当前创建的用户：
 # ('17559028', 'Jack', 'jack', 15000, '50', 'Chicago')
 # ('19696295', 'bloke', '12345', 11610, '23', 'Gehua')
 # ('17052578', 'anon', '54321', 15000, '24', 'Beijing')
 # ('10122658', '焦恩', '11111', 13860, '30', 'America')
+# ('17360935', 'test01', '11111', 15000, '10', '朝鲜')
 #
 # 当前锁定账号:
-# ('10122658',)
+# ('10122658', '17360935')
