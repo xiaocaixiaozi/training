@@ -74,3 +74,11 @@
 17/11/15 23:10:08 [INFO] Test 17559028 card number is locked. <not locked>
 17/11/15 23:10:08 [INFO] 17559028 auth success.
 17/11/15 23:10:08 [INFO] Get user info. [('17559028', 'Jack', '596727c8a0ea4db3ba2ceceedccbacd3d7b371b8', 16000, '50', 'Chicago')]
+17/11/16 09:24:29 [INFO] Test 10122658 card number is locked. <locked>
+17/11/16 09:24:29 [WARNING] 10122658 auth failed.
+17/11/16 09:24:55 [INFO] Test 17052578 card number is locked. <not locked>
+17/11/16 09:24:55 [INFO] 17052578 auth success.
+17/11/16 09:24:55 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 14675, '24', 'Beijing')]
+17/11/16 09:27:07 [INFO] Test 17052578 card number is locked. <not locked>
+17/11/16 09:27:07 [INFO] 17052578 auth success.
+17/11/16 09:27:07 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 12475, '24', 'Beijing')]

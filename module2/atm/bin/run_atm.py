@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding=utf-8
 # Author: bloke
+# ATM入口
 
 import os
 import sys

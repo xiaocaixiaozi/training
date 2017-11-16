@@ -1,9 +1,0 @@
-1、不知道python3中的：
-    with open(the_file, 'r') as f:
-        for line in f:
-            print(line)
-    和python2中的：
-    with open(the_file, 'r') as f:
-        for line in f.xreadlines():
-            print(line)
-    是否一样，都是加载一行，释放一行空间。

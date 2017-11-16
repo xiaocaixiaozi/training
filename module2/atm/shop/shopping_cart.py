@@ -9,7 +9,7 @@ basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(basedir)
 from core import atm_login
 
-def get_atm_api(shop_list):
+def get_atm_api(last_file, shop_list):
     '''
     调用信用卡支付接口
     :return: 如果支付成功，返回True，否则返回False
@@ -114,7 +114,7 @@ def main(shelf_file, last_file, last_list):
                     if settle != 'y':
                         print('退出...')
                         sys.exit(0)
-                    result = get_atm_api(shop_list)
+                    result = get_atm_api(last_file, shop_list)
                     if result:
                         print('支付成功.')
                         sys.exit(0)
@@ -129,7 +129,7 @@ def main(shelf_file, last_file, last_list):
                 for shop_product in shop_list:
                     print(shop_product)
             if choice == 'p':
-                result = get_atm_api(shop_list)
+                result = get_atm_api(last_file, shop_list)
                 if result:
                     print('支付成功')
                     sys.exit(0)

@@ -1,8 +1,0 @@
-1、 16 << 2  ==  16 * (2**2)
-    16 >> 2  ==  16 / (2**2)
-2、集合(set): 去重；关系测试
-    A, B = set(list(range(5))), set(list(range(2,7)))
-    对称差集: A.symmetric_difference(B)   -->    {0, 1, 5, 6}   ==     A ^ B
-    交集：A.intersection(B)    A & B
-    并集：A.union(B)    ==     A | B
-    差集：A.difference(B)      A - B

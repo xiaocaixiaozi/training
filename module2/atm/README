@@ -1,0 +1,62 @@
+ATM与购物商城项目
+1、功能
+    ATM提供了信用卡账户注册、还款、转账、提现、查询、冻结账户功能；
+    购物商城提供用户和商户两种角色：
+        商户可以上架商品
+        用户可以购买商品，最后结账时调用ATM接口，来使用信用卡付款
+2、运行
+    ATM入口为 bin/run_atm.py ; 购物商城入口为 bin/run_shop.py
+    直接使用 python bin/run_atm.py 或者 python bin/run_shop.py 执行
+3、安装
+    python setup.py install
+4、目录结构
+    atm
+    ├── ATM.png
+    ├── bin
+    │   ├── __init__.py
+    │   ├── run_atm.py
+    │   └── run_shop.py
+    ├── conf
+    │   ├── db_setting.py
+    │   ├── __init__.py
+    │   └── __pycache__
+    ├── core
+    │   ├── atm_login.py
+    │   ├── __init__.py
+    │   ├── __pycache__
+    │   └── tools.py
+    ├── db
+    │   ├── atm.db
+    │   └── __init__.py
+    ├── docs
+    ├── __init__.py
+    ├── logs
+    │   ├── 17052578.log
+    │   ├── 17360935.log
+    │   ├── 19696295.log
+    │   ├── atm.log
+    │   └── db.log
+    ├── README
+    ├── requirements.txt
+    ├── setup.py
+    ├── shop
+    │   ├── balance
+    │   ├── __init__.py
+    │   ├── Last_con
+    │   ├── note
+    │   ├── __pycache__
+    │   ├── question
+    │   ├── shelf
+    │   ├── shopping_cart.png
+    │   ├── shopping_cart.py
+    │   └── shopping_cart_readme.txt
+    └── task
+    注释：
+        bin为启动文件存放目录
+        conf为配置文件存放目录
+        core为ATM主程序
+        db为数据库存放目录
+        logs存放日志及账户流水
+        shop为购物商城主程序目录
+5、注意事项：
+    仅在python3环境中测试成功
