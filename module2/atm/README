@@ -29,6 +29,8 @@ ATM与购物商城项目
     │   ├── atm.db
     │   └── __init__.py
     ├── docs
+    │    ├── ATM使用.txt
+    │    ├── 购物商城使用.txt
     ├── __init__.py
     ├── logs
     │   ├── 17052578.log
@@ -56,6 +58,7 @@ ATM与购物商城项目
         conf为配置文件存放目录
         core为ATM主程序
         db为数据库存放目录
+        docs存放使用文档
         logs存放日志及账户流水
         shop为购物商城主程序目录
 5、注意事项：
