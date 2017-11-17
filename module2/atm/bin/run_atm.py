@@ -19,20 +19,43 @@ atm_api = {
 }
 
 key_dict = {}
+pre_key_dict = {'1': '开户', '2': '登录'}
 while 1:
-    for num, key in enumerate(atm_api, 1):
-        key_dict[str(num)] = key
-        print(str(num) + ' > ' + key)
-    choose = input('请选择操作: [q 退出]').strip()
-    if choose == 'q':
-        break
-    if choose not in key_dict:
-        print('请重新输入.')
-        continue
-    state = atm_api[key_dict[choose]]()
-    if state:
-        print('操作成功.')
-        print('ATM'.center(50, '='))
-    else:
-        print('操作失败.')
-        print('ATM'.center(50, '='))
+    try:
+        for key, value in pre_key_dict.items():
+            print(key + ' > ' + value)
+        choice = input('Choice: [q 退出] ').strip()
+        if choice == 'q':
+            sys.exit(0)
+        if choice not in pre_key_dict:
+            continue
+        if choice == '1':
+            atm_login.create_user()
+        else:
+            user_data = atm_login.check_login()
+            del (atm_api['开户'])
+            while 1:
+                for num, key in enumerate(atm_api, 1):
+                    if key != '开户':
+                        key_dict[str(num)] = key
+                        print(str(num) + ' > ' + key)
+                choose = input('请选择操作: [q 退出]').strip()
+                if choose == 'q':
+                    break
+                if choose not in key_dict:
+                    print('请重新输入.')
+                    continue
+                if not user_data:
+                    print('登陆失败')
+                    break
+                state = atm_api[key_dict[choose]](user_data)
+                if state:
+                    print('操作成功.')
+                    print('ATM'.center(50, '='))
+                else:
+                    print('操作失败.')
+                    print('ATM'.center(50, '='))
+    except KeyboardInterrupt as e:
+        print('Exit.')
+
+

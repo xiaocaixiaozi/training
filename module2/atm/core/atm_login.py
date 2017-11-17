@@ -57,33 +57,45 @@ def update_user_data(key, value, card_num):
     result = db_setting.update_table(db, user_table, update_sql, [key, value, card_num])
     return result
 
+def check_login():
+    n = 0
+    while n < 3:
+        card_num = input('卡号: ').strip()
+        password = input('密码: ').strip()
+        if not card_num or not password or not card_num.isdigit():
+            print('请输入正确的信息.')
+            n += 1
+            continue
+        else:
+            if check_lock(card_num):
+                print('此卡号已被锁定 [ \033[31;1m%s\033[0m ]\n如需解锁，请到柜台办理.' % card_num)
+                atm_logger.warning('%s auth failed.' % card_num)
+                return False
+            data = db_setting.select_table(db, select_sql, user_table, card_num)    # type is list
+            if len(data) > 0:
+                real_password = data[0][2]
+                if hash(password) == real_password:
+                    atm_logger.info('%s auth success.' % card_num)
+                    return data[0]
+                else:
+                    print('用户名或密码错误.')
+                    atm_logger.warning('%s auth failed.' % card_num)
+                    n += 1
+                    continue
+    else:
+        return False
+
 def atm_auth(func):
     '''
-    用于信用卡用户登录认证，并且返回该用户的信息给func
+    通过获取的user_data，来验证用户是否认证成功，
+        如果成功，则返回该用户的信息给func
+        如果失败，则不执行func
     :param func: 待认证的方法
     '''
-    def wrapper(*args, **kwargs):
-        while 1:
-            card_num = input('卡号: ').strip()
-            password = input('密码: ').strip()
-            if not card_num or not password or not card_num.isdigit():
-                print('请输入正确的信息.')
-                continue
-            else:
-                if check_lock(card_num):
-                    print('此卡号已被锁定 [ \033[31;1m%s\033[0m ]\n如需解锁，请到柜台办理.' % card_num)
-                    atm_logger.warning('%s auth failed.' % card_num)
-                    return False
-                data = db_setting.select_table(db, select_sql, user_table, card_num)
-                if data:
-                    real_password = data[0][2]
-                    if hash(password) == real_password:
-                        atm_logger.info('%s auth success.' % card_num)
-                        result = func(user_data=data[0], *args, **kwargs)
-                        break
-                    else:
-                        print('用户名或密码错误.')
-                        continue
+    def wrapper(user_data):
+        if not user_data:
+            return False
+        result = func(user_data)
         return result
     return wrapper
 
@@ -130,6 +142,16 @@ def get_user_info(user_data):
     :return: 返回用户信息
     '''
     atm_logger.info('Get user info. [%s]' % str(user_data))
+    card_num, user_name, passwd, balance, age, address = user_data
+    print(''.center(50, '*'))
+    print('''
+    card_num:   %s
+    user_name:  %s
+    balance:    %s
+    age:        %s
+    address:    %s
+    ''' % (card_num, user_name, balance, age, address))
+    print(''.center(50, '*'))
     return user_data
 
 @atm_auth
@@ -173,6 +195,7 @@ def transfer(user_data):
     :param user_data: 由atm_auth函数返回
     :return: 转账成功返回True，否则返回False
     '''
+    print(user_data)
     card_num, user_name, passwd, balance, age, address = user_data
     while 1:
         trans_card_num = input('要转账的卡号: ').strip()
@@ -274,7 +297,6 @@ def lock_user(user_data):
     while 1:
         sign = input('您确定锁定该账号吗？[Y/N]').strip().lower()
         if sign == 'n':
-            break
             return True
         if sign == 'y':
             result = db_setting.insert_table(db, create_lock_sql, lock_table, insert_lock_sql, [card_num])
@@ -296,6 +318,9 @@ def lock_user(user_data):
 # ('17052578', 'anon', '54321', 15000, '24', 'Beijing')
 # ('10122658', '焦恩', '11111', 13860, '30', 'America')
 # ('17360935', 'test01', '11111', 15000, '10', '朝鲜')
+# ('12443204', 'haha', 'haha', 15000, '21', 'China')
+# ('18702474', 'aning', '11111', 15000, '23', 'Hebei')
 #
 # 当前锁定账号:
 # ('10122658', '17360935')
+

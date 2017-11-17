@@ -82,3 +82,100 @@
 17/11/16 09:27:07 [INFO] Test 17052578 card number is locked. <not locked>
 17/11/16 09:27:07 [INFO] 17052578 auth success.
 17/11/16 09:27:07 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 12475, '24', 'Beijing')]
+17/11/17 09:03:15 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:03:15 [INFO] 17559028 auth success.
+17/11/17 09:07:41 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:07:41 [INFO] 17559028 auth success.
+17/11/17 09:08:46 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:08:46 [INFO] 17559028 auth success.
+17/11/17 09:26:23 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:26:23 [INFO] 17559028 auth success.
+17/11/17 09:45:33 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:45:33 [INFO] 17559028 auth success.
+17/11/17 09:46:29 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:46:29 [INFO] 17559028 auth success.
+17/11/17 09:47:27 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:47:27 [INFO] 17559028 auth success.
+17/11/17 09:47:37 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:47:37 [INFO] 17559028 auth success.
+17/11/17 09:48:52 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:48:52 [INFO] 17559028 auth success.
+17/11/17 09:48:52 [INFO] Get user info. [('17559028', 'Jack', '596727c8a0ea4db3ba2ceceedccbacd3d7b371b8', 15100, '50', 'Chicago')]
+17/11/17 09:50:34 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:50:34 [INFO] 17559028 auth success.
+17/11/17 09:50:34 [INFO] Get user info. [('17559028', 'Jack', '596727c8a0ea4db3ba2ceceedccbacd3d7b371b8', 15100, '50', 'Chicago')]
+17/11/17 09:53:28 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:53:28 [INFO] 17559028 auth success.
+17/11/17 09:53:28 [INFO] Get user info. [(('17559028', 'Jack', '596727c8a0ea4db3ba2ceceedccbacd3d7b371b8', 15100, '50', 'Chicago'),)]
+17/11/17 09:53:41 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:53:41 [INFO] 17559028 auth success.
+17/11/17 09:54:56 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:54:56 [INFO] 17559028 auth success.
+17/11/17 09:56:21 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:56:21 [INFO] 17559028 auth success.
+17/11/17 09:57:08 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:57:08 [WARNING] 17559028 auth failed.
+17/11/17 09:57:35 [INFO] Test 1755902 card number is locked. <not locked>
+17/11/17 09:58:23 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:58:23 [WARNING] 17559028 auth failed.
+17/11/17 09:58:26 [INFO] Test 1755902 card number is locked. <not locked>
+17/11/17 09:58:29 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 09:58:29 [INFO] 17559028 auth success.
+17/11/17 09:58:29 [INFO] Get user info. [(('17559028', 'Jack', '596727c8a0ea4db3ba2ceceedccbacd3d7b371b8', 15100, '50', 'Chicago'),)]
+17/11/17 10:00:37 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 10:00:37 [INFO] 17559028 auth success.
+17/11/17 10:01:14 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 10:01:14 [INFO] 17559028 auth success.
+17/11/17 10:01:29 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 10:01:29 [INFO] 17559028 auth success.
+17/11/17 10:01:29 [INFO] Get user info. [(('17559028', 'Jack', '596727c8a0ea4db3ba2ceceedccbacd3d7b371b8', 15100, '50', 'Chicago'),)]
+17/11/17 10:01:33 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 10:01:33 [INFO] 17559028 auth success.
+17/11/17 10:02:23 [INFO] Test 17559028 card number is locked. <not locked>
+17/11/17 10:02:23 [INFO] 17559028 auth success.
+17/11/17 10:02:42 [INFO] [17559028] account successfully transferred to [19696295] account 10 yuan.
+17/11/17 10:04:36 [INFO] Test 19696295 card number is locked. <not locked>
+17/11/17 10:04:36 [WARNING] 19696295 auth failed.
+17/11/17 10:04:39 [INFO] Test 19696295 card number is locked. <not locked>
+17/11/17 10:04:39 [INFO] 19696295 auth success.
+17/11/17 10:04:39 [INFO] Get user info. [('19696295', 'bloke', '8cb2237d0679ca88db6464eac60da96345513964', 8820, '23', 'Gehua')]
+17/11/17 10:07:04 [INFO] Test 19696295 card number is locked. <not locked>
+17/11/17 10:07:04 [INFO] 19696295 auth success.
+17/11/17 10:07:04 [INFO] Get user info. [('19696295', 'bloke', '8cb2237d0679ca88db6464eac60da96345513964', 8820, '23', 'Gehua')]
+17/11/17 10:08:15 [INFO] Test 19696295 card number is locked. <not locked>
+17/11/17 10:08:15 [INFO] 19696295 auth success.
+17/11/17 10:08:15 [INFO] Get user info. [('19696295', 'bloke', '8cb2237d0679ca88db6464eac60da96345513964', 8820, '23', 'Gehua')]
+17/11/17 10:08:44 [INFO] Test 19696295 card number is locked. <not locked>
+17/11/17 10:08:44 [INFO] 19696295 auth success.
+17/11/17 10:08:44 [INFO] Get user info. [('19696295', 'bloke', '8cb2237d0679ca88db6464eac60da96345513964', 8820, '23', 'Gehua')]
+17/11/17 10:10:16 [INFO] Test 19696295 card number is locked. <not locked>
+17/11/17 10:10:16 [INFO] 19696295 auth success.
+17/11/17 10:10:18 [INFO] Get user info. [('19696295', 'bloke', '8cb2237d0679ca88db6464eac60da96345513964', 8820, '23', 'Gehua')]
+17/11/17 10:10:52 [INFO] [19696295] account successfully transferred to [17052578] account 10 yuan.
+17/11/17 10:11:02 [INFO] 19696295 account successfully repay 100 yuan.
+17/11/17 10:23:28 [INFO] Test 19696295 card number is locked. <not locked>
+17/11/17 10:23:28 [INFO] 19696295 auth success.
+17/11/17 10:23:28 [INFO] Get user info. [('19696295', 'bloke', '8cb2237d0679ca88db6464eac60da96345513964', 8920, '23', 'Gehua')]
+17/11/17 10:24:52 [INFO] Test 19696295 card number is locked. <not locked>
+17/11/17 10:24:52 [INFO] 19696295 auth success.
+17/11/17 10:24:54 [INFO] Get user info. [('19696295', 'bloke', '8cb2237d0679ca88db6464eac60da96345513964', 8920, '23', 'Gehua')]
+17/11/17 10:25:13 [INFO] [19696295] account successfully transferred to [17052578] account 10 yuan.
+17/11/17 10:25:24 [INFO] 19696295 account successfully repay 80 yuan.
+17/11/17 10:25:52 [INFO] 19696295 account successfully repay 5 yuan.
+17/11/17 10:26:07 [INFO] 19696295 account successfully repay 0 yuan.
+17/11/17 10:26:16 [INFO] 19696295 account withdrawals 10 yuan, after deducting the fee of 0.5 yuan.
+17/11/17 10:26:37 [INFO] Create 12443204 card number, the message is [haha, 21, China].
+17/11/17 10:26:49 [INFO] Test 12443204 card number is locked. <not locked>
+17/11/17 10:26:49 [INFO] 12443204 auth success.
+17/11/17 10:26:51 [INFO] Get user info. [('12443204', 'haha', '637d1f5c6e6d1be22ed907eb3d223d858ca396d8', 15000, '21', 'China')]
+17/11/17 10:29:30 [INFO] Test 17052578 card number is locked. <not locked>
+17/11/17 10:29:30 [INFO] 17052578 auth success.
+17/11/17 10:29:32 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 10295, '24', 'Beijing')]
+17/11/17 10:30:10 [INFO] Test 17052578 card number is locked. <not locked>
+17/11/17 10:30:10 [INFO] 17052578 auth success.
+17/11/17 10:30:10 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 10295, '24', 'Beijing')]
+17/11/17 10:30:20 [INFO] 17052578 account successfully repay 100 yuan.
+17/11/17 10:30:45 [INFO] Create 18702474 card number, the message is [aning, 23, Heibei].
+17/11/17 10:31:39 [INFO] Test 18702474 card number is locked. <not locked>
+17/11/17 10:31:39 [INFO] 18702474 auth success.
+17/11/17 10:31:40 [INFO] Get user info. [('18702474', 'aning', '7b21848ac9af35be0ddb2d6b9fc3851934db8420', 15000, '23', 'Heibei')]
