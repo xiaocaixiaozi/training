@@ -16,7 +16,14 @@ def get_atm_api(last_file, shop_list):
     '''
     money = 0
     print('调取信用卡接口...')
-    user_data = atm_login.get_user_info()
+    while 1:
+        user_data = atm_login.check_login()
+        if not user_data:
+            print('登陆失败')
+            continue
+        else:
+            break
+    user_data = atm_login.get_user_info(user_data)
     if user_data:
         card_num, user_name, password, balance, age, address = user_data
         balance = int(balance)

@@ -179,3 +179,19 @@
 17/11/17 10:31:39 [INFO] Test 18702474 card number is locked. <not locked>
 17/11/17 10:31:39 [INFO] 18702474 auth success.
 17/11/17 10:31:40 [INFO] Get user info. [('18702474', 'aning', '7b21848ac9af35be0ddb2d6b9fc3851934db8420', 15000, '23', 'Heibei')]
+17/11/17 10:48:39 [INFO] Test 17052578 card number is locked. <not locked>
+17/11/17 10:48:39 [INFO] 17052578 auth success.
+17/11/17 11:03:54 [INFO] Test 17052578 card number is locked. <not locked>
+17/11/17 11:03:54 [INFO] 17052578 auth success.
+17/11/17 11:03:56 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 10395, '24', 'Beijing')]
+17/11/17 11:04:24 [INFO] [17052578] account successfully transferred to [19696295] account 10 yuan.
+17/11/17 11:04:27 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 10385, '24', 'Beijing')]
+17/11/17 11:05:05 [INFO] 17052578 account successfully repay 15 yuan.
+17/11/17 11:05:06 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 10400, '24', 'Beijing')]
+17/11/17 11:05:16 [INFO] 17052578 account withdrawals 100 yuan, after deducting the fee of 5.0 yuan.
+17/11/17 11:05:19 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 10295, '24', 'Beijing')]
+17/11/17 11:12:12 [INFO] Test 10122658 card number is locked. <locked>
+17/11/17 11:12:12 [WARNING] 10122658 auth failed.
+17/11/17 11:12:22 [INFO] Test 17052578 card number is locked. <not locked>
+17/11/17 11:12:22 [INFO] 17052578 auth success.
+17/11/17 11:12:22 [INFO] Get user info. [('17052578', 'anon', '348162101fc6f7e624681b7400b085eeac6df7bd', 10295, '24', 'Beijing')]

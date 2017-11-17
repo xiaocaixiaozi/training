@@ -30,6 +30,15 @@ select_sql = 'SELECT * FROM %s WHERE card_num = "%s";'
 select_lock_sql = 'SELECT * FROM lock;'
 atm_logger = record_log('../logs/atm.log')   # ATM操作日志
 
+def raw_user_info(card_num):
+    '''
+    直接查询数据，不调用认证
+    :param card_num: 待查询的卡号
+    :return: 返回查询的数据
+    '''
+    data = db_setting.select_table(db, select_sql, user_table, card_num)[0]
+    return data
+
 def get_lock_info():
     '''
     查询锁定卡号
@@ -152,6 +161,8 @@ def get_user_info(user_data):
     address:    %s
     ''' % (card_num, user_name, balance, age, address))
     print(''.center(50, '*'))
+    user_logger = record_log('../logs/%s.log' % card_num)
+    user_logger.info('get user info. [ %s ]' % card_num)
     return user_data
 
 @atm_auth
@@ -311,16 +322,4 @@ def lock_user(user_data):
                 user_logger = record_log('../logs/%s.log' % card_num)
                 user_logger.warning('account lock failed.' % card_num)
                 return False
-
-# 当前创建的用户：
-# ('17559028', 'Jack', 'jack', 15000, '50', 'Chicago')
-# ('19696295', 'bloke', '12345', 11610, '23', 'Gehua')
-# ('17052578', 'anon', '54321', 15000, '24', 'Beijing')
-# ('10122658', '焦恩', '11111', 13860, '30', 'America')
-# ('17360935', 'test01', '11111', 15000, '10', '朝鲜')
-# ('12443204', 'haha', 'haha', 15000, '21', 'China')
-# ('18702474', 'aning', '11111', 15000, '23', 'Hebei')
-#
-# 当前锁定账号:
-# ('10122658', '17360935')
 

@@ -33,8 +33,13 @@ while 1:
             atm_login.create_user()
         else:
             user_data = atm_login.check_login()
+            if not user_data:
+                print('登陆失败')
+                break
+            card_num, username, password, balance, age, address = user_data
             del (atm_api['开户'])
             while 1:
+                user_data = atm_login.raw_user_info(card_num)
                 for num, key in enumerate(atm_api, 1):
                     if key != '开户':
                         key_dict[str(num)] = key
@@ -45,9 +50,6 @@ while 1:
                 if choose not in key_dict:
                     print('请重新输入.')
                     continue
-                if not user_data:
-                    print('登陆失败')
-                    break
                 state = atm_api[key_dict[choose]](user_data)
                 if state:
                     print('操作成功.')
