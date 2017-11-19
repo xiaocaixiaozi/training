@@ -18,6 +18,8 @@ def search(username, ):
             for line in f.readlines():
                 if username in line:
                     print(line.split(' ')[1])
+    else:
+        print("用户不存在")
 
 
 def modify(username, salary=''):
@@ -31,14 +33,18 @@ def modify(username, salary=''):
                     line = "%s %s\n" % (username, new_salary)
                 f.write(line)
         print("修改成功")
+    else:
+        print("用户不存在")
 
 
 def add(username, salary=''):
     if not user_exit(username):
         salary = input("Please input salary:")
-        with open(db, 'a') as f:
+        with open(db, 'a', encoding='utf8') as f:
             f.write("%s %s\n" % (username, salary))
         print("添加成功")
+    else:
+        print("用户已经存在")
 
 func_dict = {
     "查询用户": search,
