@@ -3,84 +3,72 @@
 # Author: itanony
 
 import sqlite3
+import logging
 
-db = 'staff'
-create_table_sql = '''Create table %s (
-staff_id int auto_increment not null,
-name varchar(30) not null,
-age char(3) not null,
-phone char(20) primary key not null,
-enroll_date char(10) not null,
-)
-'''
+def log(name='sql'):
+    logger = logging.Logger(name)
+    file_handler = logging.FileHandler('sql.log', 'a', 'utf-8')
+    file_handler.setLevel(logging.INFO)
+    data_format = logging.Formatter(fmt='%(asctime)s [%(levelname)s] <%(funcName)s> %(message)s',\
+                                    datefmt='%Y/%m/%d %H:%M:%S')
+    file_handler.setFormatter(data_format)
+    logger.addHandler(file_handler)
+    return logger
 
-def conn_db(db_name):
-    conn = sqlite3.conn(db_name)
-    cursor = conn.cursor()
-    return conn, cursor
+db = table = 'staff'
+create_table_sql = '''CREATE TABLE IF NOT EXISTS %s(
+    staff_id INT AUTO_INCREMENT,
+    name CHAR(30) NOT NULL,
+    age CHAR(3) NOT NULL,
+    phone CHAR(20) PRIMARY KEY NOT NULL,
+    dept CHAR(15) NOT NULL,
+    enroll_date DATETIME DEFAULT (DATETIME('now', 'localtime'))
+);''' % table    # 创建数据库表
 
-def close_db(conn, cursor):
-    cursor.close()
-    conn.close()
+def def_sql(operate):
+    if not operate: return False
+    if operate == 'insert':
+        while 1:
+            name = input('Name: ').strip()
+            age = input('Age: ').strip()
+            phone = input('Tel: ').strip()
+            dept = input('Dept: ').strip()
+            if False in [bool(x) for x in [name, age, phone, dept]] \
+                    or not age.isdigit() or not phone.isdigit() or name.isdigit():
+                print('请输入正确信息.')
+                continue
+            else:
+                break
+        insert_sql = 'INSERT INTO %s(name, age, phone, dept) VALUES(%s, %s, %s, %s)' % (table, name, age, phone, dept)
+        return insert_sql
+    elif operate == 'select':
+        pass
 
-def create_table(db_name, command):
-    conn, cursor = conn_db(db_name)
-    cursor.execute(command)
-    close_db(conn, cursor)
+def conn_db(func):
+    def operate(db_name, command):
+        logger = log()
+        conn = sqlite3.connect(db_name)
+        cursor = conn.cursor()
+        result = func(cursor, command, logger)
+        if result:
+            cursor.close()
+            conn.commit()
+            conn.close()
+            return result
+        else:
+            conn.rollback()
+            cursor.close()
+            conn.close()
+            return result
+    return operate
 
-def user_exit(name):
-    with open(db, 'r') as f:
-        for line in f.readlines():
-            if name == line.split(" ")[0]:
-                return True
-
-def search(username, ):
-    if user_exit(username):
-        with open(db, 'r') as f:
-            for line in f.readlines():
-                if username in line:
-                    print(line.split(' ')[1])
-    else:
-        print("用户不存在")
-
-def modify(username, salary=''):
-    if user_exit(username):
-        new_salary = input("Please input salary:")
-        with open(db, "r") as f:
-            lines = f.readlines()
-        with open(db, "w") as f:
-            for line in lines:
-                if username in line:
-                    line = "%s %s\n" % (username, new_salary)
-                f.write(line)
-        print("修改成功")
-    else:
-        print("用户不存在")
-
-def add(username, salary=''):
-    if not user_exit(username):
-        salary = input("Please input salary:")
-        with open(db, 'a', encoding='utf8') as f:
-            f.write("%s %s\n" % (username, salary))
-        print("添加成功")
-    else:
-        print("用户已经存在")
-
-func_dict = {
-    "查询用户": search,
-    "修改用户": modify,
-    "添加用户": add,
-}
-
-while 1:
-    for index,item in enumerate(func_dict.keys()):
-        print(index,item)
-    choice = input("Please Input Your Choice,[q] for exit>> ")
-    if choice in list(func_dict.keys()):
-        username = input("请输入用户名>> ")
-        func_dict[choice](username)
-    elif choice == 'q':
-        break
-    else:
-        print("输入有误,重新输入")
+@conn_db
+def operate_sql(cursor, command, logger):
+    logger.info(command)
+    try:
+        cursor.execute(command)
+    except sqlite3.OperationalError as e:
+        logger.error(e)
+        return False
+    return True
 
