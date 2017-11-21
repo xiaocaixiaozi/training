@@ -133,7 +133,7 @@ def define_update_sql():
 
 def conn_db(func):
     '''
-    链接数据库，作为装饰器使用，对需要操作数据库的函数提供链接
+    链接数据库，作为装饰器使用，在执行操作数据库的函数之前调用
     :param func: 操作数据库的函数
     :return: 返回操作后的结果
     '''
@@ -176,6 +176,9 @@ def operate_sql(cursor, command, logger):
         return False
     except sqlite3.IntegrityError as i:
         logger.error(i)
+        return False
+    except ValueError as v:
+        logger.error(v)
         return False
     return data
 

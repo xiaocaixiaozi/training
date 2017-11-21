@@ -37,3 +37,7 @@
 2017/11/21 17:59:45 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
 2017/11/21 17:59:52 [INFO] <operate_sql> SELECT * FROM staff WHERE enroll_date like '%2017%';
 2017/11/21 18:00:28 [INFO] <operate_sql> SELECT name,age FROM staff WHERE age > "21";
+2017/11/21 19:17:28 [INFO] <operate_sql> SELECT * FROM staff WHERE enroll_date like '%2017%';
+2017/11/21 19:31:37 [INFO] <operate_sql> False
+2017/11/21 19:32:51 [INFO] <operate_sql> False
+2017/11/21 19:32:51 [ERROR] <operate_sql> operation parameter must be str
