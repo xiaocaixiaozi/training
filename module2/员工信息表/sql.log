@@ -77,3 +77,24 @@
 2017/11/23 15:01:38 [INFO] <operate_sql> UPDATE staff SET dept = "Person" where staff_id = "3";
 2017/11/23 15:01:44 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
 2017/11/23 15:01:48 [INFO] <operate_sql> SELECT * from staff WHERE dept = "Person";
+2017/11/23 15:12:14 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 15:12:23 [INFO] <operate_sql> DELETE FROM staff WHERE staff_id = "2";
+2017/11/23 15:12:28 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 15:24:03 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 15:24:25 [INFO] <operate_sql> SELECT * from staff WHERE dept = "Person";
+2017/11/23 15:24:48 [INFO] <operate_sql> INSERT INTO staff(name, age, phone, dept) VALUES("user04", "25", "111114", "IT");
+2017/11/23 15:24:53 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 15:25:02 [INFO] <operate_sql> False
+2017/11/23 15:25:02 [ERROR] <operate_sql> operation parameter must be str
+2017/11/23 15:25:28 [INFO] <operate_sql> False
+2017/11/23 15:25:28 [ERROR] <operate_sql> operation parameter must be str
+2017/11/23 15:25:34 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 15:25:37 [INFO] <operate_sql> select * from staff where staff_id == "5";
+2017/11/23 15:25:37 [INFO] <operate_sql> DELETE FROM staff WHERE staff_id = "5";
+2017/11/23 15:25:41 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 15:25:49 [INFO] <operate_sql> select * from staff where staff_id == "5";
+2017/11/23 15:26:55 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 15:26:59 [INFO] <operate_sql> select * from staff where staff_id == "5";
+2017/11/23 15:27:16 [INFO] <operate_sql> select * from staff where staff_id == "5";
+2017/11/23 15:27:18 [INFO] <operate_sql> False
+2017/11/23 15:27:18 [ERROR] <operate_sql> operation parameter must be str

@@ -62,11 +62,17 @@ def check_staff_id():
     while n <= 3:
         staff_id = input('员工ID: ').strip()
         if not staff_id or not staff_id.isdigit():
-            print('未知ID.')
+            print('# \033[31;1m未知ID.\033[0m\n')
             n += 1
             continue
         else:
-            return staff_id
+            result = operate_sql('select * from %s where staff_id == "%s";' % (table, staff_id))
+            if not result:
+                print('# \033[31;1m未知ID.\033[0m\n')
+                n += 1
+                continue
+            else:
+                return staff_id
     else:
         return False
 
@@ -238,5 +244,5 @@ if __name__ == '__main__':
         if result != False:
             print('# \033[32;1m操作成功\033[0m\n')
         else:
-            print('# \033[31;1m操作失败\033[0m]\n')
+            print('# \033[31;1m操作失败\033[0m\n')
         continue
