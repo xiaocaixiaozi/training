@@ -41,3 +41,39 @@
 2017/11/21 19:31:37 [INFO] <operate_sql> False
 2017/11/21 19:32:51 [INFO] <operate_sql> False
 2017/11/21 19:32:51 [ERROR] <operate_sql> operation parameter must be str
+2017/11/23 13:59:54 [INFO] <operate_sql> SELECT name,age FROM staff WHERE age > "22";
+2017/11/23 14:22:06 [INFO] <operate_sql> SELECT staff_id,name,age FROM staff WHERE age > "22";
+2017/11/23 14:26:14 [INFO] <operate_sql> SELECT staff_id,name,age FROM staff WHERE age > "22";
+2017/11/23 14:26:36 [INFO] <operate_sql> INSERT INTO staff(name, age, phone, dept) VALUES("user04", "25", "111115", "Person");
+2017/11/23 14:26:55 [INFO] <operate_sql> SELECT staff_id,name,age FROM staff WHERE age > "23";
+2017/11/23 14:27:02 [INFO] <operate_sql> DELETE FROM staff WHERE staff_id = "4";
+2017/11/23 14:27:05 [INFO] <operate_sql> SELECT staff_id,name,age FROM staff WHERE age > "22";
+2017/11/23 14:27:49 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 14:28:24 [INFO] <operate_sql> SELECT staff_id,name,age FROM staff WHERE age > "2";
+2017/11/23 14:38:30 [INFO] <operate_sql> SELECT staff_id,name,age FROM staff WHERE age > "2";
+2017/11/23 14:38:37 [INFO] <operate_sql> SELECT * from staff WHERE dept = "it";
+2017/11/23 14:38:47 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 14:42:32 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:44:31 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:44:55 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:45:32 [INFO] <operate_sql> False
+2017/11/23 14:45:32 [ERROR] <operate_sql> operation parameter must be str
+2017/11/23 14:45:38 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "2";
+2017/11/23 14:47:44 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 14:48:03 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 14:48:56 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:49:16 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:49:38 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 14:49:53 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:50:05 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 14:50:24 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:50:35 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 14:50:45 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 14:51:04 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:51:25 [INFO] <operate_sql> SELECT * FROM staff WHERE age > "22";
+2017/11/23 14:59:53 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 15:00:35 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 15:01:25 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 15:01:38 [INFO] <operate_sql> UPDATE staff SET dept = "Person" where staff_id = "3";
+2017/11/23 15:01:44 [INFO] <operate_sql> SELECT * from staff WHERE dept = "IT";
+2017/11/23 15:01:48 [INFO] <operate_sql> SELECT * from staff WHERE dept = "Person";

@@ -106,7 +106,7 @@ def define_select_sql():
             break
     if choice == '1':
         age = input('年龄: ').strip()
-        select_sql = 'SELECT name,age FROM %s WHERE age > "%s";' % (table, age)
+        select_sql = 'SELECT * FROM %s WHERE age > "%s";' % (table, age)
         return select_sql
     if choice == '2':
         dept = input('部门: ').strip()
@@ -122,11 +122,23 @@ def define_update_sql():
     生成update语句
     :return: 返回语句
     '''
+    sign = 1
     staff_id = check_staff_id()
     if not staff_id:
         return False
     else:
-        key = input('要修改的项: ').strip()
+        item_dict = {'1': 'name', '2': 'age', '3': 'phone', '4': 'dept'}
+        while sign <= 3:
+            for n in range(1, len(item_dict)+1):
+                print(n, ':', item_dict[str(n)], end='; ')
+            key = input('\n要修改编号: ').strip()
+            if key not in item_dict:
+                print('非法字段,请重新选择')
+                sign += 1
+                continue
+            else:
+                key = item_dict[str(key)]
+                break
         value = input('修改的值：').strip()
         update_sql = 'UPDATE %s SET %s = "%s" where staff_id = "%s";' % (table, key, value, staff_id)
         return update_sql
@@ -183,41 +195,48 @@ def operate_sql(cursor, command, logger):
     return data
 
 if __name__ == '__main__':
-    operate_dict = {
-        '查询': define_select_sql,
-        '添加': define_insert_sql,
-        '删除': define_delete_sql,
-        '修改': define_update_sql
-    }
-    choice_dict = {
-        '1': '查询',
-        '2': '添加',
-        '3': '删除',
-        '4': '修改'
-    }
-    for n in choice_dict:
-        print(n, ' : ', choice_dict[n])
-#    operate_sql(create_table_sql)
-    num = 1
-    while num < 3:
-        choice = input('Choice: ').strip()
-        if choice not in choice_dict:
-            num += 1
-            continue
+    while 1:
+        operate_dict = {
+            '查询': define_select_sql,
+            '添加': define_insert_sql,
+            '删除': define_delete_sql,
+            '修改': define_update_sql
+        }
+        choice_dict = {
+            '1': '查询',
+            '2': '添加',
+            '3': '删除',
+            '4': '修改'
+        }
+        for n in range(1, len(choice_dict)+1):
+            print(str(n) + ': ' + choice_dict[str(n)], end=';  ')
         else:
-            break
-    else:
-        sys.exit(1)
-    sql = operate_dict[choice_dict[str(choice)]]()
-    print('SQL语句: ', sql)
-    result = operate_sql(sql)
-    if choice == '1':
-        for item in result:
-            print(item)
+            print('q:quit.')
+    #    operate_sql(create_table_sql)
+        num = 1
+        while num < 3:
+            choice = input('Choice: ').strip()
+            if choice == 'q':
+                sys.exit(0)
+            if choice not in choice_dict:
+                num += 1
+                continue
+            else:
+                break
         else:
-            print(('总共匹配%s条数据' % len(result)).center(50, '*'))
-            sys.exit(0)
-    if result != False:
-        print('操作成功')
-    else:
-        print('操作失败')
+            sys.exit(1)
+        sql = operate_dict[choice_dict[str(choice)]]()
+        print('\033[32;1mSQL语句: %s\033[0m' % sql)
+        result = operate_sql(sql)
+        if choice == '1':
+            for item in result:
+                staff_id, user_name, age, tel, dept, enroll_date = item
+                print('ID: %s | 用户名: %s | 年龄: %s | 电话: %s | 部门: %s | 注册日: %s'\
+                      % (staff_id, user_name, age, tel, dept, enroll_date))
+            else:
+                print(('总共匹配%s条数据' % len(result)).center(80, '*'))
+        if result != False:
+            print('# \033[32;1m操作成功\033[0m\n')
+        else:
+            print('# \033[31;1m操作失败\033[0m]\n')
+        continue
