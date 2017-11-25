@@ -1,0 +1,6 @@
+1、在自己项目中的不同目录中互相导入模块时，使用绝对路径，将项目路径加入到sys.path中
+2、import模块，实质是将此模块的全部代码加载一遍，如果 设置了__name__ == '__main__'，则只有模块本身才可执行指定的操作，因为
+从其他模块调用时，例如my_test调用module1，__name__变为了my_test.module1
+3、通过import module，如果多次调用module的module1函数，每次都会去加载一次module1的全部代码，应该写为from module import module1
+4、使用from module import *，前提是module下的__init__.py文件中已经将全部模块都导入
+5、用户在登陆时，如果登陆成功，则剩下的操作应不需要再次登陆
