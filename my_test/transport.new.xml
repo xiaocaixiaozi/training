@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='utf-8'?>
+<TianShanTransport>
+<Storages>
+<Storage desc="" ifep="ContentStore:tcp -h SSS2_SS_CL -p 10800" netid="SSS2_SS_CL_1" type="A3CS" />
+<Storage desc="" ifep="ContentStore:tcp -h SSS2_SS_CL -p 10801" netid="SSS2_SS_CL_2" type="A3CS" />
+</Storages>
+<ServiceGroups>
+<Group desc="" id="256" type="" />
+<Group desc="" id="512" type="" />
+<Group desc="" id="11776" type="" />
+<Group desc="" id="50943" type="" />
+<Group desc="" id="51199" type="" />
+<Group desc="" id="8" type="" /><Group desc="" id="1" type="" /><Group desc="" id="2" type="" /><Group desc="" id="0" type="" /><Group desc="" id="9" type="" /><Group desc="" id="3" type="" /><Group desc="" id="5" type="" /><Group desc="" id="4" type="" /><Group desc="" id="6" type="" /><Group desc="" id="7" type="" /></ServiceGroups>
+<Streamers>
+<Streamer desc="" ifep="NSS1:tcp -h SSS2_SS_CL -p 10800" netid="SSS2_SS_CL_1/NSS" type="NSS" />
+<Streamer desc="" ifep="NSS1:tcp -h SSS2_SS_CL -p 10800" netid="SSS2_SS_CL_2/NSS" type="NSS" />
+</Streamers>
+<StorageLinks>
+<Link linkId="StorageLink/BB5B7E1D-A49E-4348-B998-CC59A5BBC41F" status="0" storageId="SSS2_SS_CL_1" streamerId="SSS2_SS_CL_1/NSS" type="SeaChange.NSS.C2Transfer"><PrivateData><Data key="CtrlStatus" range="0" type="Int"><Item value="0" /></Data><Data key="TotalBandwidth" range="0" type="Long"><Item value="94000000" /></Data></PrivateData>
+</Link>
+<Link linkId="StorageLink/481EFF66-B4B4-419B-8C8C-A9ABFFBE441F" status="0" storageId="SSS2_SS_CL_2" streamerId="SSS2_SS_CL_2/NSS" type="SeaChange.NSS.C2Transfer"><PrivateData><Data key="CtrlStatus" range="0" type="Int"><Item value="0" /></Data><Data key="TotalBandwidth" range="0" type="Long"><Item value="94000000" /></Data></PrivateData>
+</Link>
+</StorageLinks>
+<StreamLinks>
+<Link linkId="StreamLink/FFFABDFF-F2A8-4912-AE88-4773B190441F" servicegroupId="1418" status="0" streamerId="SSS2_SS_CL_1/NSS" type="XOR-media.NSS.S6ERM"><PrivateData><Data key="CtrlStatus" range="0" type="Int"><Item value="0" /></Data><Data key="DefaultSymbolRate" range="0" type="Int"><Item value="6875000" /></Data><Data key="IP" range="0" type="String"><Item value="172.16.150.24" /></Data><Data key="Port" range="0" type="Int"><Item value="2000" /></Data><Data key="Qam.ModulationFormat" range="0" type="Int"><Item value="8" /></Data><Data key="Route-IDs" range="0" type="String"><Item value="${SVCGRP}" /></Data><Data key="SopName" range="0" type="String"><Item value="CDN-OSTR1-A" /></Data><Data key="TotalBandWidth" range="0" type="Long"><Item value="0" /></Data></PrivateData>
+</Link>
+<Link linkId="StreamLink/FFFB9327-FB7F-46E1-918E-4E212D96C41F" servicegroupId="48048" status="0" streamerId="SSS2_SS_CL_1/NSS" type="XOR-media.NSS.S6ERM"><PrivateData><Data key="CtrlStatus" range="0" type="Int"><Item value="0" /></Data><Data key="DefaultSymbolRate" range="0" type="Int"><Item value="6875000" /></Data><Data key="IP" range="0" type="String"><Item value="172.16.150.87" /></Data><Data key="Port" range="0" type="Int"><Item value="2000" /></Data><Data key="Qam.ModulationFormat" range="0" type="Int"><Item value="8" /></Data><Data key="Route-IDs" range="0" type="String"><Item value="${SVCGRP}" /></Data><Data key="SopName" range="0" type="String"><Item value="CDN-OSTR1-H" /></Data><Data key="TotalBandWidth" range="0" type="Long"><Item value="0" /></Data></PrivateData>
+</Link>
+</StreamLinks>
+</TianShanTransport>
