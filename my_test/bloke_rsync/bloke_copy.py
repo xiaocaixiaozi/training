@@ -9,6 +9,7 @@ import re
 import shutil
 import sys
 import logging
+import multiprocessing
 
 
 def generate_logger(log_file='copy.log'):
@@ -28,6 +29,9 @@ def generate_logger(log_file='copy.log'):
 
 
 def do_record(func):
+    """
+    装饰器，为每个动作传入logger
+    """
     logger = generate_logger()
 
     def do_action(*args):
@@ -82,8 +86,7 @@ def do_copy(dest_dir, file_list, logger):
     :return: 拷贝成功返回True，否则返回False
     """
     if not os.path.exists(dest_dir):
-        logger.error('The target directory do not exist... [ %s ]' % dest_dir)
-        logger.info(datetime.datetime.now().strftime('%Y/%m/%d_%H:%M:%S').center(50, '*'))
+        logger.error('target path access failed... [ %s ]' % dest_dir)
         sys.exit(1)
     for source_f in file_list:
         try:
@@ -129,7 +132,7 @@ if __name__ == '__main__':
     source_path = r'D:\epg'     # 文件源路径
     local_bak_dir = os.path.join(source_path, datetime.datetime.strptime(\
         require_time, '%y%m%d').strftime('%Y-%m-%d'))  # 本地备份路径
-    remote_dest_dir = 'D:\epgbak'       # 远程拷贝路径
+    remote_dest_dir = '\\172.16.201.209\\bgcaaa'       # 远程拷贝路径
     file_re = re.compile(r'Gehua.com_GEHU\d{3}(\d{6})')     # 匹配文件名中包含 require_time 变量的文件
     files = get_file_path(source_path, require_time, file_re)
     if not files:

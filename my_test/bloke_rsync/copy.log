@@ -86,3 +86,12 @@
 2017-11-30 14:45:00 INFO backup D:\epg\Gehua.com_GEHU8361711301000000_20174030104006338.xml to D:\epg\2017-11-30 success.
 2017-11-30 14:45:00 INFO Backup Successful.
 2017-11-30 14:45:43 WARNING did not match the file.
+2017-11-30 15:26:16 WARNING did not match the file.
+2017-11-30 15:29:02 WARNING did not match the file.
+2017-11-30 15:44:24 WARNING did not match the file.
+2017-11-30 15:45:12 WARNING did not match the file.
+2017-11-30 15:46:07 ERROR The target directory do not exist... [ \172.16.201.209\bgcaaa ]
+2017-11-30 15:46:07 INFO ***************2017/11/30_15:46:07****************
+2017-11-30 15:47:02 ERROR target path access failed... [ \172.16.201.209\bgcaaa ]
+2017-11-30 15:47:02 INFO ***************2017/11/30_15:47:02****************
+2017-11-30 15:47:20 ERROR target path access failed... [ \172.16.201.209\bgcaaa ]
