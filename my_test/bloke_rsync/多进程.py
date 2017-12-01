@@ -36,12 +36,17 @@ def action_02():
         logger.info('in the action_02')
 
 
-if __name__ == '__main__':
-    poll = multiprocessing.Pool(2)
-    for i in [action_01, action_02]:
-        poll.apply_async(i)
-    else:
-        poll.close()
-        poll.join()
-    print('Done.')
+def action_03():
+    print('in the action_03..............')
 
+
+if __name__ == '__main__':
+    while 1:
+        poll = multiprocessing.Pool(2)
+        for i in [action_01, action_02]:
+            poll.apply_async(i)
+        else:
+            poll.close()
+            poll.join()
+        action_03()
+        print('Done.')
