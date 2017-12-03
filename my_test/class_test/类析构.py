@@ -21,6 +21,9 @@ class SchoolPerson(object):
         SchoolPerson.member_num -= 1
         print('Delete ', self.name, self.member_num)
 
+    def end(self):
+        print('end...', self.name)
+
 
 class Teacher(SchoolPerson):
 
@@ -39,14 +42,16 @@ class Student(SchoolPerson):
         SchoolPerson.__init__(self, name, age, sex)
         self.role = role
 
+    @staticmethod
+    def bloke():
+        print('bloke')
+
     def tell(self):
         SchoolPerson.enroll(self)
         print(self.__dict__)
 
 
-t1 = Teacher('teacher1', 30, 'F', 'Teacher')
-s1 = Student('student1', 22, 'M', 'Student')
+r1 = SchoolPerson('a','c','d')
+r2 = SchoolPerson(1,2,3)
+r3 = SchoolPerson(1,1,1)
 
-t1.tell()
-s1.tell()
-t1.tell()

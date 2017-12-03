@@ -129,11 +129,10 @@ stream1_abs_path = get_file('stream1', area)
 stream2_abs_path = get_file('stream2', area)
 siteadminsvc_abs_path = get_file('siteadminsvc', area)
 
-for key in rtspproxy_abs_path:
-    print(key.center(50, '-'))
-    for item in rtspproxy_abs_path[key]:
-        print(item)
-
+for key in stream2_abs_path:
+    print(key)
+    for l in stream2_abs_path[key]:
+        print(l)
 '''
 # 定义正则匹配
 re_number = re.compile(r'%s' % card_num)
