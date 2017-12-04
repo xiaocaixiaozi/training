@@ -6,8 +6,8 @@
 import os
 import re
 import datetime
-import sys
 import time
+import multiprocessing
 
 
 class GETLOGINFO(object):
@@ -15,29 +15,29 @@ class GETLOGINFO(object):
     获取日志文件的绝对路径
     """
     log_file_dict = {}
-    hosts_list = []     # 记录日志的主机地址
-    dir_path = r'\c$\TianShan\logs'     # 日志远程访问路径
-    siteadminsvc_list, the_mod_info, weiwoo_list, weiwoo_path, pho_vss, pho_erm, nss_log = \
-        [], [], [], [], [], [], []
+    hosts_list = []  # 记录日志的主机地址
+    dir_path = r'\c$\TianShan\logs'  # 日志远程访问路径
+    # siteadminsvc_list, the_mod_info, weiwoo_list, weiwoo_path, pho_vss, pho_erm, nss_log = \
+    #     [], [], [], [], [], [], []
+    info_socket, info_tianshan = [], []
+    # 定义正则表达式
+    re_time = re.compile(r'(\d{2}:\d{2}):')
+    re_session = re.compile(r'processed: session\[([\d\]]+)]')
+    re_stream_session = re.compile(r'STREAM\/(\S*)')
+    re_stream_num = re.compile(r'-h (\S*)\ -p (\S*)')
+    re_weiwoo_session = re.compile(r'weiwoo session\((\w+)\)')
+    re_mod_session = re.compile(r'ModPur\/(\S*)')
+    re_socket = re.compile(r'(\s\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d*)')
 
     def __init__(self, card_num, spec_time, range_time, spec_area):
-        self.card_num = card_num    # 要搜索的卡号
+        self.card_num = card_num  # 要搜索的卡号
         self.spec_time = spec_time  # 指定大约时间
-        self.range_time = range_time    # 指定的时间范围
-        self.spec_area = spec_area      # 指定的区域
-        # 定义正则表达式
-        self.re_number = re.compile(r'%s' % self.card_num)
-        self.re_time = re.compile(r'(\d{2}:\d{2}):')
-        # self.re_socket = re.compile(r'(\s\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d*)')
-        self.re_socket = re.compile(r'(\s(\d{1,3}\.){3}\d{1,3}:\d*)')
-        self.re_session = re.compile(r'processed: session\[([\d\]]+)]')
-        self.re_stream_session = re.compile(r'STREAM\/(\S*)')
-        self.re_stream_num = re.compile(r'-h (\S*)\ -p (\S*)')
-        self.re_weiwoo_session = re.compile(r'weiwoo session\((\w+)\)')
-        self.re_mod_session = re.compile(r'ModPur\/(\S*)')
+        self.range_time = range_time  # 指定的时间范围
+        self.spec_area = spec_area  # 指定的区域
+        self.re_number = re.compile(r'%s' % self.card_num)  # 匹配卡号
         # 日志模块
         self.log_items = ['RtspProxy', 'ssm_tianshan_s1', 'MODSvc', 'weiwoo', 'Path', 'pho_VSS', 'pho_ERM', \
-                     'SiteAdminSvc', 'NSS2', 'NSS', 'NSS3', 'NSS4']
+                          'SiteAdminSvc', 'NSS2', 'NSS', 'NSS3', 'NSS4']
         # 每个日志模块对应的文件数，默认为5个(range(5))
         self.log_item_counts = {
             'ssm_tianshan_s1': range(10),
@@ -65,10 +65,10 @@ class GETLOGINFO(object):
             'stream2': ['31'],
             'siteadminsvc': ['21'],
         }
-        for item in self.log_items:     # 日志文件字典，记录每个日志模块各自对应的日志文件
+        for item in self.log_items:  # 日志文件字典，记录每个日志模块各自对应的日志文件
             self.log_file_dict[item] = ['%s.log' % item] + ['%s.%s.log' % (item, x) \
-                                                       for x in self.log_item_counts.get(item, range(5))]
-        file_mod_relate_dict = {        # 记录查询模块对应的日志模块
+                                                            for x in self.log_item_counts.get(item, range(5))]
+        file_mod_relate_dict = {  # 记录查询模块对应的日志模块
             'rtspproxy': self.log_file_dict['RtspProxy'],
             'ssm_tianshan': self.log_file_dict['ssm_tianshan_s1'],
             'mod': self.log_file_dict['MODSvc'],
@@ -99,6 +99,10 @@ class GETLOGINFO(object):
         else:
             os._exit(1)
 
+    @staticmethod
+    def my_call(content=''):
+        return content.center(50, '*')
+
     def generate_address(self, spec_mod, sign=''):
         file_abs_path = {}
         for i in map(lambda x: self.area_dict[self.spec_area] + x, [y for y in self.mod_dict[spec_mod]]):
@@ -124,22 +128,22 @@ class GETLOGINFO(object):
         搜索rtspproxy相关信息
         :return: 返回卡号、匹配到的IP地址、匹配到的日志文件
         """
-        file_abs_path = self.generate_address('rtspproxy')      # 获取日志路径<dict: {host: file_paths}>
+        file_abs_path = self.generate_address('rtspproxy')  # 获取日志路径<dict: {host: file_paths}>
         info_card_number = []
         for the_ip, files in file_abs_path.items():
             for the_file in files:
-                with open(the_file, 'rb', encoding='utf-8') as f:
+                with open(the_file, 'r', encoding='utf-8') as f:
                     for line in f:
                         if self.re_number.findall(line):
                             log_time = self.re_time.findall(line)[0]
                             # 根据给定的时间范围，来匹配此时间段内的事件
                             if abs((datetime.datetime.strptime(self.spec_time, '%H:%M') - \
-                                            datetime.datetime.strptime(log_time,'%H:%M')).total_seconds()) < self.range_time:
+                                            datetime.datetime.strptime(log_time, '%H:%M')).total_seconds()) < float(
+                                self.range_time):
                                 info_card_number.append(line)
                     else:
                         # 匹配即退出循环，如果此文件匹配到相关信息，则跳出循环
                         if len(info_card_number) > 0:
-                            print(info_card_number)
                             # 返回对应卡号和时间点的信息，日志文件所在机器的IP地址，匹配到信息的日志文件名
                             return info_card_number, the_ip, the_file
         else:
@@ -152,7 +156,6 @@ class GETLOGINFO(object):
         :return: 返回socket相关信息<列表>，session号，IP地址
         """
         info_card_number, the_ip, the_file = self.search_card_number()
-        info_socket = []
         # 如果在指定卡号和时间内，匹配出多行信息，需要用户输入序号
         if len(info_card_number) > 1:
             for l in enumerate(info_card_number):
@@ -167,39 +170,38 @@ class GETLOGINFO(object):
             except TypeError as e:
                 self.my_exit("Please enter the correct serial number ! [%s]" % e)
         else:
+            print(info_card_number[n])
             try:
                 info_socket_num = self.re_socket.findall(info_card_number[n])[0]
             except IndexError as e:
                 self.my_exit('No relevant information. [ %s ]' % e)
-        with open(the_file, 'r') as f:
+        with open(the_file, 'r', encoding='utf-8') as f:
             for line in f:
                 if info_socket_num in line:
-                    info_socket.append(line)
-        if not info_socket:
+                    self.info_socket.append(line)
+        if not self.info_socket:
             self.my_exit('No socket information.')
         else:
-            for socket_item in info_socket:
+            for socket_item in self.info_socket:
                 if self.re_session.findall(socket_item):
                     try:
                         session_num = self.re_session.findall(socket_item)[0]
                     except IndexError as e:
                         pass
-        return info_socket, session_num, the_ip
+        return session_num, the_ip
 
     def search_ssm_tianshan(self):
         """
         通过rtspproxy日志中搜索出的session号，到ssm_tianshan日志中查找相关信息
         :return: 返回从ssm_tianshan中查到的日志<列表>
         """
-        info_socket, session_num, the_ip = self.search_socket()
-        info_tianshan = []      # ssm_tianshan的相关信息
-        file_abs_path = self.generate_address('ssm_tianshan')   #获取日志路径<dict: {host: file_paths}>
+        session_num, the_ip = self.search_socket()
+        file_abs_path = self.generate_address('ssm_tianshan')  # 获取日志路径<dict: {host: file_paths}>
         for ssm_file in file_abs_path[the_ip]:
-            with open(ssm_file) as f:
+            with open(ssm_file, 'r', encoding='utf-8') as f:
                 for line in f:
                     if session_num in line:
-                        info_tianshan.append(line)
-        self.info_tianshan = info_tianshan      # 放到全局变量
+                        self.info_tianshan.append(line)
 
     def search_id(self):
         """
@@ -207,7 +209,7 @@ class GETLOGINFO(object):
         将nss、weiwoo、mod、nss的主机名、nss的端口作为全局变量
         """
         self.search_ssm_tianshan()
-        stream_session, weiwoo_session, mod_session, stream_h, stream_p = '','','','',''
+        stream_session, weiwoo_session, mod_session, stream_h, stream_p = '', '', '', '', ''
         for i in self.info_tianshan:
             if self.re_stream_session.findall(i):
                 stream_session = self.re_stream_session.findall(i)[0]
@@ -224,83 +226,100 @@ class GETLOGINFO(object):
         self.stream_p = stream_p
 
     def search_mod_info(self):
-        file_abs_path = self.generate_address('mod')    # 获取日志路径<dict: {host: file_paths}>
+        the_mod_info = [self.my_call('MOD')]
+        file_abs_path = self.generate_address('mod')  # 获取日志路径<dict: {host: file_paths}>
         if self.mod_session:
             for the_ip, file_f in file_abs_path.items():
                 for file_n in file_f:
-                    with open(file_n, 'r') as f:
+                    with open(file_n, 'r', encoding='utf-8') as f:
                         for line in f:
                             if self.mod_session in line:
-                                self.the_mod_info.append(line)
-                    if len(self.the_mod_info) > 0:
+                                the_mod_info.append(line)
+                    if len(the_mod_info) > 1:
                         break
-                if len(self.the_mod_info) > 0:
+                if len(the_mod_info) > 1:
                     break
 
     def search_weiwoo_siteadminsvc_log(self):
+        siteadminsvc_list = [self.my_call('Siteadminsvc')]
         file_abs_path = self.generate_address('siteadminsvc')
-        self.siteadminsvc_list.append('\n' + 'Siteadminsvc'.center(40, '*') + '\n')
         if self.weiwoo_session:
             for the_ip, items in file_abs_path.items():
                 for item in items:
-                    with open(item, 'r') as f:
+                    with open(item, 'r', encoding='utf-8') as f:
                         for line in f:
                             if self.weiwoo_session in line:
-                                self.siteadminsvc_list.append(line)
-                    if len(self.siteadminsvc_list) > 1:  # 匹配即停止，跳出循环
+                                siteadminsvc_list.append(line)
+                    if len(siteadminsvc_list) > 1:  # 匹配即停止，跳出循环
                         break
-                if len(self.siteadminsvc_list) > 1:
+                if len(siteadminsvc_list) > 1:
                     break
+        return siteadminsvc_list
 
     def search_weiwoo_weiwoo_log(self):
+        weiwoo_list = [self.my_call('Weiwoo')]
         file_abs_path = self.generate_address('weiwoo', 'weiwoo')
-        self.weiwoo_list.append('\n' + 'Weiwoo'.center(40, '*') + '\n')
+        print(file_abs_path)
+        weiwoo_list.append('\n' + 'Weiwoo'.center(40, '*') + '\n')
         if self.weiwoo_session:
-            for item in file_abs_path:
-                with open(item, 'r') as f:
-                    for line in f:
-                        if self.weiwoo_session in line:
-                            self.weiwoo_list.append(line)
-                if len(self.weiwoo_list) > 1:
-                    break
+            for host_file_list in file_abs_path:
+                for item in host_file_list:
+                    print(item)
+                    with open(item, 'r', encoding='utf-8') as f:
+                        for line in f:
+                            if self.weiwoo_session in line:
+                                weiwoo_list.append(line)
+                    if len(weiwoo_list) > 1:
+                        break
+        return weiwoo_list
 
     def search_weiwoo_path_log(self):
-        self.weiwoo_path.append('\n' + 'Path'.center(40, '*') + '\n')
+        weiwoo_path = [self.my_call('Weiwoo_path')]
         if self.weiwoo_session:
             file_abs_path = self.generate_address('weiwoo', 'path')
-            for item in file_abs_path:
-                with open(item, 'r') as f:
-                    for line in f:
-                        if self.weiwoo_session in line:
-                            self.weiwoo_path.append(line)
-                if len(self.weiwoo_path) > 1:
-                    break
+            for host_file_list in file_abs_path:
+                for item in host_file_list:
+                    print(item)
+                    with open(item, 'r', encoding='utf-8') as f:
+                        for line in f:
+                            if self.weiwoo_session in line:
+                                weiwoo_path.append(line)
+                    if len(weiwoo_path) > 1:
+                        break
+        return weiwoo_path
 
     def search_weiwoo_pho_vss_log(self):
-        self.pho_vss.append('\n' + 'Pho_vss'.center(40, '*') + '\n')
+        pho_vss = [self.my_call('Pho_vss')]
         if self.weiwoo_session:
             file_abs_path = self.generate_address('weiwoo', 'pho_vss')
-            for item in file_abs_path:
-                with open(item, 'r') as f:
-                    for line in f:
-                        if self.weiwoo_session in line:
-                            self.pho_vss.append(line)
-                if len(self.pho_vss) > 1:
-                    break
+            for host_file_list in file_abs_path:
+                for item in host_file_list:
+                    print(item)
+                    with open(item, 'r', encoding='utf-8') as f:
+                        for line in f:
+                            if self.weiwoo_session in line:
+                                pho_vss.append(line)
+                    if len(pho_vss) > 1:
+                        break
+        return pho_vss
 
     def search_weiwoo_pho_erm_log(self):
-        self.pho_erm.append('\n' + 'Pho_erm'.center(40, '*') + '\n')
+        pho_erm = [self.my_call('Pho_erm')]
         if self.weiwoo_session:
             file_abs_path = self.generate_address('weiwoo', 'pho_erm')
-            for item in file_abs_path:
-                with open(item, 'r') as f:
-                    for line in f:
-                        if self.weiwoo_session in line:
-                            self.pho_erm.append(line)
-                if len(self.pho_erm) > 1:
-                    break
+            for host_file_list in file_abs_path:
+                for item in host_file_list:
+                    print(item)
+                    with open(item, 'r', encoding='utf-8') as f:
+                        for line in f:
+                            if self.weiwoo_session in line:
+                                pho_erm.append(line)
+                    if len(pho_erm) > 1:
+                        break
+        return pho_erm
 
     def search_stream_info(self):
+        nss_log = [self.my_call('NSS')]
         if self.stream_session != '':
             if self.stream_h == 'sss6_ss_cl':
                 sign1 = 'stream2'
@@ -318,60 +337,82 @@ class GETLOGINFO(object):
                 stream2_file_abs_path = self.generate_address(sign1, sign2)
                 for the_ip, file_l in stream2_file_abs_path.items():
                     for file_n in file_l:
-                        with open(file_n, 'r') as f:
+                        with open(file_n, 'r', encoding='utf-8') as f:
                             for line in f:
                                 if self.stream_session in line:
-                                    self.nss_log.append(line)
-                        if len(self.nss_log) > 0:
+                                    nss_log.append(line)
+                        if len(nss_log) > 1:
                             break
-                    if len(self.nss_log) > 0:
+                    if len(nss_log) > 1:
                         break
             else:
                 stream1_file_abs_path = self.generate_address(sign1, sign2)
                 for the_ip, file_l in stream1_file_abs_path.items():
                     for file_n in file_l:
-                        with open(file_n, 'r') as f:
+                        with open(file_n, 'r', encoding='utf-8') as f:
                             for line in f:
                                 if self.stream_session in line:
-                                    self.nss_log.append(line)
-                        if len(self.nss_log) > 0:
+                                    nss_log.append(line)
+                        if len(nss_log) > 1:
                             break
-                    if len(self.nss_log) > 0:
+                    if len(nss_log) > 1:
                         break
+        return nss_log
 
 
 if __name__ == '__main__':
-    re_time = re.compile(r'(\d{2}:\d{2}):')
     try:
-        while 1:    # 输入卡号
+        while 1:  # 输入卡号
             card_num = input('Card Number: ').strip()
-            if card_num: break
-        while 1:    # 输入时间点
-               spec_time = input('Time [HH:MM]: ').strip()
-               if not spec_time:
-                   continue
-               if not re_time.match(spec_time):
-                   print("Invalid time format !")
-                   continue
-               else:
-                   break
-
-        while 1:       #输入时间范围
-           range_time = input('Range time [min]: ').strip()
-           if not range_time or not range_time.isdigit():
-               continue
-           else:
-               range_time *= 60
-               break
-        while 1:    #输入区域
-           spec_area = input('Area: ').strip().upper()
-           if not spec_area:
-               continue
-           else:
-               break
+            if card_num:
+                break
+        while 1:  # 输入时间点
+            spec_time = input('Time [HH:MM]: ').strip()
+            if not spec_time:
+                continue
+            if not re.match(r'(\d{2}:\d{2})', spec_time):
+                print("Invalid time format !")
+                continue
+            else:
+                break
+        while 1:  # 输入时间范围
+            range_time = input('Range time [min]: ').strip()
+            if not range_time or not range_time.isdigit():
+                continue
+            else:
+                range_time *= 60
+                break
+        while 1:  # 输入区域
+            spec_area = input('Area: ').strip().upper()
+            if not spec_area:
+                continue
+            else:
+                break
     except KeyboardInterrupt as e:
-       sys.exit('\nExit ...')
-    f = open('log_%s.txt' % str(card_num), 'wb')
-    search_log = GETLOGINFO(card_num, spec_time, range_time, spec_area)     # 将GETLOGINFO实例化为对象
-
+        GETLOGINFO.my_exit('Exit')
+    f = open('log_%s.txt' % str(card_num), 'w', encoding='utf-8')
+    # # search_log.search_ssm_tianshan()  # ssm_tianshan日志
+    # search_log.search_id()  # 从ssm_tianshan日志中搜索session_id
+    # threads = []
+    # results = []
+    # pool = multiprocessing.Pool()
+    # for thread in [search_log.search_mod_info, search_log.search_weiwoo_siteadminsvc_log, \
+    #                search_log.search_weiwoo_weiwoo_log, search_log.search_weiwoo_path_log, \
+    #                search_log.search_weiwoo_pho_vss_log, search_log.search_weiwoo_pho_erm_log]:
+    #     threads.append(pool.apply_async(thread))
+    # pool.close()
+    # pool.join()
+    # for i in threads:
+    #     results.append(i.get())
+    # for item in results:
+    #     print(item)
+    search_log = GETLOGINFO(card_num, spec_time, range_time, spec_area)  # 实例化
+    search_log.search_id()  # 从ssm_tianshan日志中搜索session_id
+    search_log.search_mod_info()                    # mod日志
+    search_log.search_weiwoo_siteadminsvc_log()     # siteadmin日志
+    search_log.search_weiwoo_weiwoo_log()           # weiwoo日志
+    search_log.search_weiwoo_path_log()             # path日志
+    search_log.search_weiwoo_pho_vss_log()          # pho_vss日志
+    search_log.search_weiwoo_pho_erm_log()          # pho_erm日志
+    search_log.search_stream_info()                 # nss日志
 
