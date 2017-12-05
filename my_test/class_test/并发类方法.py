@@ -8,7 +8,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 class MYTEST(object):
 
-    info_list = []
+    one_list, two_list, three_list = [], [], []
 
     def __init__(self, name, age, sex):
         self.name = name
@@ -22,16 +22,16 @@ class MYTEST(object):
         time.sleep(random.randint(1, 5))
 
     def talk_one(self):
-        self.my_sleep()
-        self.info_list.append('My name is %s.' % self.name)
+        # self.my_sleep()
+        self.one_list.append('My name is %s.' % self.name)
 
     def talk_two(self):
-        self.my_sleep()
-        self.info_list.append('My age is %s.' % self.age)
+        # self.my_sleep()
+        self.two_list.append('My age is %s.' % self.age)
 
     def talk_three(self):
-        self.my_sleep()
-        self.info_list.append('My sex is %s.' % self.sex)
+        # self.my_sleep()
+        self.three_list.append('My sex is %s.' % self.sex)
 
 
 if __name__ == '__main__':
@@ -41,4 +41,7 @@ if __name__ == '__main__':
         pool.apply_async(func)
     pool.close()
     pool.join()
-    print(my_test.info_list)
+    print('one: ', my_test.one_list)
+    print('two: ', my_test.two_list)
+    print('three: ', my_test.three_list)
+
