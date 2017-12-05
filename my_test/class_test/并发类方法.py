@@ -3,7 +3,7 @@
 
 import time
 import random
-import multiprocessing
+from multiprocessing.dummy import Pool as ThreadPool
 
 
 class MYTEST(object):
@@ -23,33 +23,22 @@ class MYTEST(object):
 
     def talk_one(self):
         self.my_sleep()
-        return 'My name is %s.' % self.name
+        self.info_list.append('My name is %s.' % self.name)
 
     def talk_two(self):
         self.my_sleep()
-        return 'My age is %s.' % self.age
+        self.info_list.append('My age is %s.' % self.age)
 
     def talk_three(self):
         self.my_sleep()
-        return 'My sex is %s.' % self.sex
+        self.info_list.append('My sex is %s.' % self.sex)
 
 
 if __name__ == '__main__':
-    start_time = time.time()
-    result = []
-    res = []
     my_test = MYTEST('user01', 22, 'male')
-    pool = multiprocessing.Pool(3)
-    # queue = multiprocessing.Queue()
-    for i in [my_test.talk_one, my_test.talk_two, my_test.talk_three]:
-        result.append(pool.apply_async(i))
+    pool = ThreadPool(3)
+    for func in [my_test.talk_one, my_test.talk_two, my_test.talk_three]:
+        pool.apply_async(func)
     pool.close()
     pool.join()
-    for item in result:
-        res.append(item.get())
-    # my_test.talk_one()
-    # my_test.talk_two()
-    # my_test.talk_three()
-    print(res)
-    print(time.time() - start_time)
-
+    print(my_test.info_list)
