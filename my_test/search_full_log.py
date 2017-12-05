@@ -28,11 +28,18 @@ class GETLOGINFO(object):
     re_socket = re.compile(r'(\s\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d*)')
 
     def __init__(self, card_num, spec_time, range_time, spec_area):
+        """
+        初始化变量
+        :param card_num: 要搜索的卡号
+        :param spec_time: 指定大约时间
+        :param range_time: 指定的时间范围
+        :param spec_area: 指定的区域
+        """
         self.info_socket, self.info_tianshan = [self.my_call('RtspProxy')], [self.my_call('ssm_tianshan')]
-        self.card_num = card_num  # 要搜索的卡号
-        self.spec_time = spec_time  # 指定大约时间
-        self.range_time = range_time  # 指定的时间范围
-        self.spec_area = spec_area  # 指定的区域
+        self.card_num = card_num
+        self.spec_time = spec_time
+        self.range_time = range_time
+        self.spec_area = spec_area
         self.re_number = re.compile(r'%s' % self.card_num)  # 匹配卡号
         # 日志模块
         self.log_items = ['RtspProxy', 'ssm_tianshan_s1', 'MODSvc', 'weiwoo', 'Path', 'pho_VSS', 'pho_ERM', \
@@ -97,6 +104,10 @@ class GETLOGINFO(object):
 
     @staticmethod
     def my_exit(content=''):
+        """
+        静态方法，所有退出时调用
+        :param content: 退出时需要打印的内容
+        """
         print('Error:', content)
         for i in reversed(range(15)):
             print('[ %s seconds after the exit. ]' % i, end='\r')
@@ -106,9 +117,19 @@ class GETLOGINFO(object):
 
     @staticmethod
     def my_call(content=''):
+        """
+        用来为每项日志添加标识
+        :param content: 标识的内容
+        :return: 返回内容
+        """
         return content.center(80, '*') + '\n'
 
     def generate_address(self, spec_mod):
+        """
+        生成指定模块的日志文件全路径
+        :param spec_mod: 模块名
+        :return: 字典格式 {ip_addr: [file_list]}
+        """
         file_abs_path = {}
         host_list = []
         for i in map(lambda x: self.area_dict[self.spec_area] + x, [y for y in self.mod_dict[spec_mod]]):
@@ -232,6 +253,10 @@ class GETLOGINFO(object):
         self.stream_p = stream_p
 
     def search_mod_info(self):
+        """
+        通过调用全局变量self.the_mod_session，来搜索匹配MOD日志
+        搜索结果添加到全局变量：self.the_mod_info.append
+        """
         self.the_mod_info = [self.my_call('MOD')]
         if self.mod_session:
             for the_ip, file_f in self.mod_abs_path.items():
@@ -246,6 +271,10 @@ class GETLOGINFO(object):
                     break
 
     def search_weiwoo_siteadminsvc_log(self):
+        """
+        通过调用全局变量self.weiwoo_session，来搜索匹配Siteadminsvc日志
+        将搜索结果添加到全局变量：self.siteadminsvc_list
+        """
         self.siteadminsvc_list = [self.my_call('Siteadminsvc')]
         if self.weiwoo_session:
             for the_ip, items in self.siteadmin_abs_path.items():
@@ -261,6 +290,10 @@ class GETLOGINFO(object):
         # return self.siteadminsvc_list
 
     def search_weiwoo_weiwoo_log(self):
+        """
+        通过调用全局变量self.weiwoo_session，来搜索匹配Weiwoo日志
+        将结果添加到全局变量：self.weiwoo_list
+        """
         self.weiwoo_list = [self.my_call('Weiwoo')]
         if self.weiwoo_session:
             for host_ip, host_file_list in self.weiwoo_abs_path.items():
@@ -274,6 +307,10 @@ class GETLOGINFO(object):
         # return weiwoo_list
 
     def search_weiwoo_path_log(self):
+        """
+        通过调用全局变量self.weiwoo_session，来搜索匹配Path日志
+        将结果添加到全局变量：self.weiwoo_path
+        """
         self.weiwoo_path = [self.my_call('Weiwoo_path')]
         if self.weiwoo_session:
             for host_ip, host_file_list in self.path_abs_path.items():
@@ -287,6 +324,10 @@ class GETLOGINFO(object):
         # return weiwoo_path
 
     def search_weiwoo_pho_vss_log(self):
+        """
+        通过调用全局变量self.weiwoo_session，来搜索匹配pho_vss日志
+        将结果添加到全局变量：self.pho_vss
+        """
         self.pho_vss = [self.my_call('Pho_vss')]
         if self.weiwoo_session:
             for host_ip, host_file_list in self.vss_abs_path.items():
@@ -300,6 +341,10 @@ class GETLOGINFO(object):
         # return pho_vss
 
     def search_weiwoo_pho_erm_log(self):
+        """
+        通过调用全局变量self.weiwoo_session，来搜索匹配pho_erm日志
+        将结果添加到全局变量：self.pho_erm
+        """
         self.pho_erm = [self.my_call('Pho_erm')]
         if self.weiwoo_session:
             for host_ip, host_file_list in self.erm_abs_path.items():
@@ -313,6 +358,10 @@ class GETLOGINFO(object):
         # return pho_erm
 
     def search_stream_info(self):
+        """
+        通过调用全局变量self.stream_session，来搜索匹配NSS日志
+        将结果添加到全局变量：self.nss_log
+        """
         self.nss_log = [self.my_call('NSS')]
         if self.stream_session != '':
             if self.stream_h == 'sss6_ss_cl':
@@ -382,7 +431,7 @@ if __name__ == '__main__':
     pool.join()
     with open('log_%s.txt' % str(card_num), 'w', encoding='utf-8') as log_file:
         for item in [search_log.info_socket, search_log.info_tianshan, search_log.siteadminsvc_list,
-                     search_log.the_mod_info,search_log.weiwoo_list, search_log.weiwoo_path, \
+                     search_log.the_mod_info, search_log.weiwoo_list, search_log.weiwoo_path, \
                      search_log.pho_vss, search_log.pho_erm, search_log.nss_log]:
             for line in item:
                 log_file.write(line)    # 写入文件
