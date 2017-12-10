@@ -1,0 +1,29 @@
+1、不论用什么方法编程，都须谨记：
+    写重复代码是非常不好的低级行为
+    所写的代码，日后需要经常变更
+
+2、面向对象编程：<多个函数需要传入多个共同的参数、创建模版>
+    Class类： 对具有相同属性的对象的抽象
+    Object对象： 一个类实例化后的实例，一个类可以实例化多个对象，每个对象可以有不同的属性
+    Encapsulation封装： 在类中对数据的赋值、内部调用，对外部用户是透明的，这使类变成了一个胶囊或容器，里面包含着类的数据和方法
+    Inheritance继承： 一个类可以派生出子类，在这个父类中定义的属性、方法自动被子类继承
+    Polymorphism多态： "一个接口，多种实现"，指一个基类中派生出了不同的子类，且每个子类在继承了同样的方法名的同时又对父类的方法
+                    做了不同的实现，这就是同一种事物表现出的多种形态
+
+3、 实例化：
+    class Person(object):
+        author = 'bloke'    # 公有属性，保存在类中
+        def __init__(self, name):   # 其中的self是实例本身
+            self.name = name
+        def talk(self, content): # content为普通字段，普通字段的值保存在对象中
+            print(content)
+    执行：r1 = Person('bloke') # 这个赋值的过程就是实例化，将一个虚拟的抽象的类，通这过个动作，变成一个真实的对象，此对象叫做实例
+
+4、staticmethod 静态属性
+    class A(object):
+        @staticmethod   # 不需要实例化就可调用，例如: A.author()
+        def author():   # 此方法，没有实际的意义，对象在调用时会保存在对象中，浪费资源，应该写成静态方法<@staticmethod>
+            print('Author :', author)
+
+
+

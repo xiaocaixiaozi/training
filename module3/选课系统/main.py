@@ -452,8 +452,11 @@ def teacher_login():
             print(teacher.class_dict[class_name]['student'])
             continue
         if inter == '3':    # 批改作业
+            print('学员列表:', teacher.class_dict[class_name]['student'])
             student_name = decide_iter(teacher.class_dict[class_name]['student'], '学员名[q退出]', '学员不存在')
-            day = decide_iter(teacher.teacher_dict[class_name][lesson_name], '学时[q退出]', '无效学时')
+            lesson_name = teacher.course_dict[course_name]['semester']
+            print('课时列表:', [x for x in teacher.teacher_dict[class_name][lesson_name].keys()])
+            day = decide_iter(teacher.teacher_dict[class_name][lesson_name], '学期[q退出]', '无效学期')
             score = decide_input('成绩')
             teacher.set_score(class_name, lesson_name, student_name, day, score)
             continue
