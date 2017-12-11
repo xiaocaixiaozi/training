@@ -528,9 +528,9 @@ if __name__ == '__main__':
         except KeyError as e:
             print('Error:', e)
             continue
-        # except:
-        #     persistent()
-        #     sys.exit('Exit.')
+        except:
+            persistent()
+            sys.exit('Exit.')
         print('操作完成'.center(50, '-'))
 
         # School.school_list
