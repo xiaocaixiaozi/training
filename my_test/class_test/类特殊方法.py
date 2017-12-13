@@ -11,9 +11,11 @@ class Person(object):
     sex = 'male'
 
     def __init__(self, name):
+        """构造方法"""
         self.name = name
 
     def __call__(self):
+        """调用对象时执行"""
         print('My name is %s.' % self.name)
 
     def __getitem__(self, item):
@@ -29,10 +31,9 @@ class Person(object):
 
 
 person = Person('bloke')
-# person()
-# person['name'] = 'user01'
-# person()
-# person['name']
-# del(person['name'])
-# person()
+person()    # 调用__call__方法
+person['name'] = 'user01'    # 调用__setitem__方法
+person['name']    # 调用__getitem__方法
+del(person['name'])    # 调用__delitem__方法
+
 

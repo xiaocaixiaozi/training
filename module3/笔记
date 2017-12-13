@@ -85,3 +85,10 @@
         person['name'] = 'user01'   # 调用__setitem__
         del(person['name'])         # 调用__delitem__
 
+7、反射：
+    hasattr(obj, attr)      # 判断obj是否有attr属性
+    getattr(obj, attr, default)      # 获取obj的attr属性，默认输出default
+    delattr(obj, attr)      # 删除obj的attr属性
+    setattr(obj, attr, value)     # 设置obj的attr属性的值为value
+
+8、

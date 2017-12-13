@@ -10,8 +10,13 @@ class A(object):
 
     @staticmethod
     def talk():
-        print('AAAAAAAAAA')
+        print('talk'.center(50, '-'))
 
+
+A.talk()
+
+
+'''
     def myself(self):
         self.talk()
         print('My name is %s.' % self.name)
@@ -19,7 +24,7 @@ class A(object):
 
 my_test = A('user01')
 my_test.myself()
-
+'''
 
 
 
