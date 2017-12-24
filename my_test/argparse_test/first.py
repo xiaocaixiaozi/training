@@ -12,3 +12,6 @@ parse.add_argument('-v', required=False, action='store_true', help='显示详细
 args = parse.parse_args()
 args = vars(args)
 print(args)
+
+
+

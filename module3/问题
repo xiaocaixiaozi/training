@@ -1,1 +1,19 @@
 @property   如何传入多个参数
+    class Person(object):
+    
+        def __init__(self, name, age):
+            self.name = name
+            self.age = age
+        
+        @property
+        def info(self):
+            print('Name: %s, Age: %s.' % (self.name, self.age))
+            
+        @info.setter
+        def info(self, data):
+            self.name, self.age = data
+            self.info
+
+            
+    person = Person('user01', '22')
+    person.info = "user02", ''23
