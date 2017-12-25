@@ -25,8 +25,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         print('[%s:%s] is disconnected.' % self.client_address)
 
 
-
-
 if __name__ == "__main__":
     host, port = 'localhost', 9999
     server = socketserver.ThreadingTCPServer((host, port), MyTCPHandler)
