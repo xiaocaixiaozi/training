@@ -13,8 +13,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         while 1:
             try:
-                self.data = self.request.recv(1)
-            except ConnectionResetError as e:
+                self.data = self.request.recv(8192)
+            except (ConnectionResetError, ConnectionAbortedError) as e:
                 break
             if not self.data:
                 break
@@ -25,12 +25,15 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         print('[%s:%s] is disconnected.' % self.client_address)
 
 
-if __name__ == "__main__":
-    host, port = 'localhost', 9999
+def server_main(host, port):
     server = socketserver.ThreadingTCPServer((host, port), MyTCPHandler)
     with server:
-        ip, addr = server.server_address
         server.serve_forever()
+
+
+if __name__ == "__main__":
+    host, port = 'localhost', 9999
+    server_main(host, port)
 
 
 

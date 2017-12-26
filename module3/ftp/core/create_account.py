@@ -5,7 +5,6 @@
 import hashlib
 from .read_config import GetConfig
 import os
-import sys
 
 
 class CreateAccount(GetConfig):
@@ -63,7 +62,10 @@ def create(username):
     sign = account.hash_password()
     if sign is False:
         print('操作失败')
-        sys.exit(1)
+        return False
     account.close()
+    return True
+
+
 
 
