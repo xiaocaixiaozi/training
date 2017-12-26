@@ -3,7 +3,7 @@
 # Author: bloke
 
 import hashlib
-from read_config import GetConfig
+from .read_config import GetConfig
 import os
 import sys
 
@@ -36,7 +36,6 @@ class CreateAccount(GetConfig):
     def hash_password(self):
         """
         通过调用generate_pass方法，获取明文密码，之后通过md5加密
-        :return:
         """
         password_data = self.generate_pass()
         if not password_data:
@@ -47,7 +46,7 @@ class CreateAccount(GetConfig):
             self.password = md5.hexdigest()
 
     def close(self):
-        """将账号密码写入shadow文件中,shadow文件必须存在，而且有password这个section才可以"""
+        """将账号密码写入shadow文件中,shadow文件必须存在，而且password这个section必须存在"""
         shadow_info = GetConfig(self.shadow_path)
         shadow_config = shadow_info.set_config()
         shadow_config.set('password', self.username, self.password)
@@ -59,10 +58,12 @@ class CreateAccount(GetConfig):
         del self.username
 
 
-if __name__ == '__main__':
-    account = CreateAccount('user01')
+def create(username):
+    account = CreateAccount(username)
     sign = account.hash_password()
     if sign is False:
-        print('操作失败...')
+        print('操作失败')
         sys.exit(1)
     account.close()
+
+

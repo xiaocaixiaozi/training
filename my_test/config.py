@@ -3,7 +3,7 @@
 # Author: bloke
 # configparse
 
-import configparser
+# import configparser
 
 '''
 # write
@@ -21,9 +21,8 @@ the_config['ForwardX11'] = 'no'
 
 with open('example.ini', 'w') as configfile:
     config.write(configfile, space_around_delimiters=True)
-'''
 
-'''
+
 # read
 config = configparser.ConfigParser()
 config.read('example.ini', encoding='utf-8')
