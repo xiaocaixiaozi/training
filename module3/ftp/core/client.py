@@ -15,6 +15,7 @@ class Client(object):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.client:
             self.client.connect((host, port))
             welcome = self.client.recv(self.transfer_size)  # 欢迎语
+            print(welcome)
             while 1:
                 self.data = input('Send: ').strip()
                 if not self.data:
@@ -38,8 +39,10 @@ class Client(object):
         action, filename = self.data.split()[0], self.data.split()[1]
         filesize = os.path.getsize(filename)
         self.client.sendall(bytes('%s %s %s' % (action, filename, filesize), encoding='utf-8'))
-        with open(filename, 'rb') as f:
-            self.client.sendall(f.read())
+        sign = self.client.recv(self.transfer_size)
+        if sign.decode('utf-8') == 'Ready...':
+            with open(filename, 'rb') as f:
+                self.client.sendall(f.read())
 
     def _get(self):
         filecount = 0

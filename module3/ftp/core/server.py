@@ -70,15 +70,19 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def _put(self):
         action, filename, filesize = self.recv.split()[0], self.recv.split()[1], self.recv.split()[2]
-        print('filesize: %s' % filesize)
+        self.request.sendall(bytes('Ready...', encoding='utf-8'))
         filecount = 0
         w_file = open(os.path.basename(filename), 'wb')
-        while filecount < int(filesize):
-            recv_data = self.request.recv(self.transfer_count)
-            w_file.write(recv_data)
-            filecount += self.transfer_count
-        w_file.flush()
-        w_file.close()
+        while 1:
+            if filecount < int(filesize):
+                recv_data = self.request.recv(self.transfer_count)
+                w_file.write(recv_data)
+                filecount += self.transfer_count
+                continue
+            else:
+                w_file.flush()
+                w_file.close()
+                break
 
     def _get(self):
         action, filename = self.recv.split()[0], self.recv.split()[1]
