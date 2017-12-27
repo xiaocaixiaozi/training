@@ -17,7 +17,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             'cd': 'Change Dir',
             'dir': 'List Dir',
             'get': 'Download File',
-            'put': 'Upload File'
+            'put': 'Upload File',
+            'help': 'Show This Page'
         }
         self.error_dict = {
             'comm_error': 'Invalid Commands',
@@ -35,47 +36,87 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 count = 0
                 recv_list = []
                 num = self.request.recv(self.transfer_count)
-                while count < int(num.decode('utf-8')):
-                    recv_data = self.request.recv(self.transfer_count).decode('utf-8')
-                    recv_list.append(recv_data)
+                try:
+                    print('Num: ', num)
+                    num = float(num.decode('utf-8'))
+                except ValueError as e:
+                    print(e)
+                    # break
+                while count < num:
+                    recv_data = self.request.recv(self.transfer_count)
+                    print(recv_data)
+                    recv_list.append(recv_data.decode('utf-8'))
                     count += self.transfer_count
                 else:
-                    recv = ''.join(recv_list)
-                    print('Recv:', recv)
-                    if recv == 'help':
-                        send_data = json.dumps(self.comm_dict)
-                        self.request.sendall(bytes(send_data, encoding='utf-8'))
+                    self.recv = ''.join(recv_list)
+                    print('Recv:', self.recv)
+                    try:
+                        action = self.recv.split()[0]
+                    except IndexError as e:
+                        print(e)
                         continue
-                    if recv.split()[0] == 'put':
-                        action, filename, filesize = recv.split()[0], recv.split()[1], recv.split()[2]
-                        self.transfer_file(action, filename, filesize)
+                    if action not in self.comm_dict:
+                        self.request.sendall(bytes('Invalid Command.', encoding='utf-8'))
                         continue
-                    elif recv.split()[0] == 'get':
-                        action, filename = recv.split()[0], recv.split()[1]
-                        filesize = os.path.getsize(filename)
-                        self.request.send(bytes(str(filesize), encoding='utf-8'))
-                        self.transfer_file(action, filename, filesize)
-                        continue
-
-                    data = subprocess.getoutput(recv)
-                    self.request.sendall(bytes(data, encoding='utf-8'))
+                    func = getattr(self, '_%s' % action, self._comm)
+                    print('_%s' % action)
+                    func()
+                    continue
         except ConnectionResetError as e:
             print(e)
 
     def finish(self):
         print('[%s:%s] is disconnected.' % self.client_address)
 
-    def transfer_file(self, action, filename, filesize):
+    def _put(self):
+        action, filename, filesize = self.recv.split()[0], self.recv.split()[1], self.recv.split()[2]
+        print('filesize: %s' % filesize)
         filecount = 0
-        if action == 'put':
-            with open(filename, 'wb') as f:
-                while filecount < filesize:
-                    recv_data = self.request.recv(self.transfer_count)
-                    f.write(recv_data)
-        elif action == 'get':
+        w_file = open(os.path.basename(filename), 'wb')
+        while filecount < int(filesize):
+            recv_data = self.request.recv(self.transfer_count)
+            w_file.write(recv_data)
+            filecount += self.transfer_count
+        w_file.flush()
+        w_file.close()
+
+    def _get(self):
+        action, filename = self.recv.split()[0], self.recv.split()[1]
+        filesize = os.path.getsize(filename)
+        self.request.send(bytes(str(filesize), encoding='utf-8'))
+        try:
             with open(filename, 'rb') as f:
-                for line in f:
-                    self.request.sendall(line)
+                self.request.sendall(f.read())
+                print(os.path.getsize(filename))
+        except FileNotFoundError as e:
+            print(e)
+
+    def _help(self):
+        send_data = json.dumps(self.comm_dict)
+        self.request.sendall(bytes(send_data, encoding='utf-8'))
+
+    def _cd(self, recv_data):
+        e = ''
+        action, dirname = recv_data
+        try:
+            subprocess.os.chdir(dirname)
+            self.request.sendall(bytes('Operate Success.', encoding='utf-8'))
+        except Exception as e:
+            self.request.sendall(bytes(str(e), encoding='utf-8'))
+
+    def _dir(self):
+        dirname = '.'
+        if len(self.recv.split()) > 1:
+            dirname = self.recv.split()[1]
+        data = os.listdir(dirname)
+        self.request.sendall(bytes('\n'.join(data), encoding='utf-8'))
+
+    def _comm(self):
+        try:
+            data = subprocess.getoutput(self.recv)
+            self.request.sendall(bytes(data, encoding='utf-8'))
+        except Exception as e:
+            self.request.sendall(bytes(str(e), 'utf-8'))
 
 
 if __name__ == "__main__":
@@ -84,7 +125,6 @@ if __name__ == "__main__":
     with server:
         ip, addr = server.server_address
         server.serve_forever()
-
 
 
 
