@@ -24,6 +24,7 @@ def get_args():
                      help='服务监听端口，默认9999')
     return vars(arg.parse_args())
 
+
 if __name__ == '__main__':
     args = get_args()
     try:
@@ -33,7 +34,7 @@ if __name__ == '__main__':
         elif args['listen']:    # 运行服务器端
             addr, port = args['address'], args['port']
             print('Running server...[%s:%s]' % (addr, port))
-            server.server_main(addr, port)
+            server.run(addr, port)
     except KeyboardInterrupt as e:
         sys.exit(1)
 

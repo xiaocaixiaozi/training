@@ -15,18 +15,30 @@ class Client(object):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.client:
             self.client.connect((host, port))
             welcome = self.client.recv(self.transfer_size)  # 欢迎语
-            print(welcome)
+            print(welcome.decode('utf-8'))
             while 1:
-                self.data = input('Send: ').strip()
-                if not self.data:
+                try:
+                    self.data = input('Send: ').strip()
+                    if not self.data:
+                        continue
+                    self.client.sendall(bytes(str(len(self.data)), encoding='utf-8'))
+                    action = self.data.split()[0]
+                    if action == 'bye':
+                        self.__del__()
+                    func = getattr(self, '_%s' % action, self._comm)
+                    func()
                     continue
-                self.client.sendall(bytes(str(len(self.data)), encoding='utf-8'))
-                action = self.data.split()[0]
-                func = getattr(self, '_%s' % action, self._comm)
-                func()
-                continue
+                except ValueError as e:
+                    print(e)
+                    continue
+                except KeyboardInterrupt as e:
+                    self.__del__()
+                except ConnectionAbortedError as e:
+                    print(e)
+                    self.__del__()
 
     def _help(self):
+        """帮助命令"""
         self.client.sendall(self.data.encode('utf-8'))
         recv_data = self.client.recv(self.transfer_size)
         recv_data = json.loads(recv_data.decode('utf-8'))
@@ -36,22 +48,29 @@ class Client(object):
         print(''.center(50, '*'))
 
     def _put(self):
+        """上传文件"""
         action, filename = self.data.split()[0], self.data.split()[1]
         filesize = os.path.getsize(filename)
         self.client.sendall(bytes('%s %s %s' % (action, filename, filesize), encoding='utf-8'))
         sign = self.client.recv(self.transfer_size)
-        if sign.decode('utf-8') == 'Ready...':
+        if sign:
             with open(filename, 'rb') as f:
                 self.client.sendall(f.read())
 
     def _get(self):
+        """下载文件"""
         filecount = 0
         action, filename = self.data.split()[0], os.path.basename(self.data.split()[1])
         self.client.sendall(self.data.encode('utf-8'))
-        filesize = self.client.recv(self.transfer_size)
+        num_info = self.client.recv(self.transfer_size)
+        try:
+            filesize = int(num_info)
+        except Exception as e:
+            print(num_info)
+            return False
         w_file = open(filename, 'wb')
         while 1:
-            if filecount < int(filesize):
+            if filecount < filesize:
                 recv_data = self.client.recv(self.transfer_size)
                 w_file.write(recv_data)
                 filecount += len(recv_data)
@@ -63,13 +82,19 @@ class Client(object):
                 break
 
     def _comm(self):
-            self.client.sendall(bytes(self.data, 'utf-8'))
-            print('Recv:')
-            recv_data = self.client.recv(self.transfer_size)
-            print(recv_data.decode('utf-8'))
+        """匹配未指定命令"""
+        self.client.sendall(bytes(self.data, 'utf-8'))
+        print('Recv:')
+        recv_data = self.client.recv(self.transfer_size)
+        print(recv_data.decode('utf-8'))
+
+    def __del__(self):
+        print('Exit.')
+        self.client.close()
+        os._exit(1)
 
 
-client = Client('localhost', 9999)
-
+if __name__ == '__main__':
+    client = Client('localhost', 9999)
 
 
