@@ -26,7 +26,13 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
     host, port, user = args['server'], args['port'], args['user']
-    client.Client(host, port)
+    for i in range(3):
+        password = input('Password: ').strip()
+        if password:
+            break
+    else:
+        sys.exit(1)
+    client.Client(user, password, host, port)
 
 
 

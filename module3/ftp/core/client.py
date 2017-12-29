@@ -11,9 +11,17 @@ class Client(object):
 
     transfer_size = 4096
 
-    def __init__(self, host, port):
+    def __init__(self, account, password, host, port):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as self.client:
             self.client.connect((host, port))
+            self.client.sendall(bytes('%s %s' % (account, password), encoding='utf-8'))
+            auth_sign = self.client.recv(self.transfer_size).decode('utf-8')
+            if int(auth_sign):
+                self.client.sendall(bytes('bye', encoding='utf-8'))
+                self.client.close()
+                os._exit(1)
+            else:
+                self.client.sendall(bytes('nice', encoding='utf-8'))
             welcome = self.client.recv(self.transfer_size)  # 欢迎语
             print(welcome.decode('utf-8'))
             while 1:

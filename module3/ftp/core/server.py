@@ -7,10 +7,13 @@ import subprocess
 import os
 import json
 import shutil
+from .ftp_tools import check_auth, hash_password
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
 
+    BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    AUTHDIR = BASEDIR + os.sep + 'conf'
     transfer_count = 4096  # 全局变量，网络传输大小，字节
     comm_dict = {
         'cd': 'Change Dir',
@@ -18,7 +21,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         'get': 'Download File',
         'put': 'Upload File',
         'help': 'Show This Page',
-        'del': 'Delete file, [-r] to remove directory',
+        'del': 'Delete file or directory',
         'bye': 'Exit.'
     }
     error_dict = {
@@ -26,12 +29,28 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
     }
 
     def setup(self):
-        print('[%s:%s] is connected.' % self.client_address)
-        self.request.sendall(bytes('Welcome %s, Please enter "help" to help.' % str(self.client_address), \
-                                   encoding='utf-8'))
+        print('%s is connected.' % str(self.client_address))
+        auth_info = self.request.recv(self.transfer_count).decode('utf-8')  # 接受client端账号密码
+        self.account, password = auth_info.split()
+        self.password = hash_password(password)     # 加密
+        auth = check_auth(self.account, self.password, os.path.join(self.AUTHDIR, 'shadow'))    # 鉴权
+        if not auth:    # 鉴权失败，发送1
+            self.request.sendall(bytes(str(1), encoding='utf-8'))
+        else:   # 鉴权成功，发送0
+            self.request.sendall(bytes(str(0), encoding='utf-8'))
+        self.client_sign = self.request.recv(self.transfer_count).decode('utf-8')
 
     def handle(self):
-        while 1:
+        check = True
+        if self.client_sign == 'bye':
+            print('%s auth failed.' % str(self.client_address))
+            self.finish()
+            check = False
+        else:
+            print('[%s:%s] is connected.' % self.client_address)
+        self.request.sendall(bytes('Welcome %s, Please enter "help" to help.' % str(self.client_address), \
+                                   encoding='utf-8'))
+        while check:
             try:
                 count = 0
                 recv_list = []
@@ -66,7 +85,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 print('_%s' % action)
                 func()
                 continue
-            except ConnectionResetError as e:
+            except (ConnectionResetError, ConnectionAbortedError) as e:
                 print(e)
                 continue
             except FileNotFoundError as e:
@@ -142,6 +161,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(bytes(data, encoding='utf-8'))
         except Exception as e:
             self.request.sendall(bytes(str(e), 'utf-8'))
+
 
 
 def run(host, port):
