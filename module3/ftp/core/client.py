@@ -90,6 +90,7 @@ class Client(object):
 
     def __del__(self):
         print('Exit.')
+        self.client.shutdown(2)
         self.client.close()
         os._exit(1)
 
