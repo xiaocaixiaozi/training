@@ -1,21 +1,21 @@
-FTP README
+##FTP README
 
-Welcome to FTP!
+#Welcome to FTP!
 
-功能:
-    提供FTP服务器、客户端之间使用命令、传输文件，目前支持命令:[cd、dir、get、put、help、del、bye]，
-    可以自定义添加，在bin\server.py中修改comm_dict即可
-    如果客户端使用没有定义的命令，则提示"Invalid command."
-    客户端在登录后，不可切换目录到家目录之外，否则会提示"Can not change directory."
-    现有账号：user01:user01  [ 账号密码相同 ]
+##功能:
+    ###提供FTP服务器、客户端之间使用命令、传输文件，目前支持命令:[cd、dir、get、put、help、del、bye]，
+    ###可以自定义添加，在bin\server.py中修改comm_dict即可
+    ###如果客户端使用没有定义的命令，则提示"Invalid command."
+    ###客户端在登录后，不可切换目录到家目录之外，否则会提示"Can not change directory."
+    ###现有账号：user01:user01  [ 账号密码相同 ]
 
-结构：
-    ├─bin       # 程序入口
-    │      client_run.py
-    │      server_run.py
-    ├─conf      # 主配置文件和密码文件
-    │      config.ini   # 配置文件
-    │      shadow       # 密码文件
+##结构：
+    ###├─bin       # 程序入口
+    ###│      client_run.py
+    ###│      server_run.py
+    ###├─conf      # 主配置文件和密码文件
+    ###│      config.ini   # 配置文件
+    ###│      shadow       # 密码文件
     ├─core      # 核心代码
     │     client.py     # 客户端主程序
     │     create_account.py     # 创建FTP账户，同时生成用户家目录，如果用户存在，则指修改密码
@@ -29,7 +29,7 @@ Welcome to FTP!
     │          user01.md     # 创建用户时产生的欢迎文件
     └─logs      # 日志目录
             ftp.log
-    注释：
+    ###注释：
         bin\client_run.py为客户端入口，通过 python client_run.py -h 查看使用帮助，如下：
             usage: FTP [-h] [-s SERVER] [-p PORT] [-u USER]
 
@@ -73,7 +73,7 @@ Welcome to FTP!
             DEBUG       10
             NOTSET      0
 
-使用：
+##使用：
     服务器端启动: python bin\server_run.py -l [-s address] [-p port]
     创建账户：  python bin\server_run.py -c user_name
     客户端启动:  python bin\client_run.py [-s address] [-p port] [-u user]
