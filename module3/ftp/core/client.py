@@ -104,6 +104,6 @@ class Client(object):
 
 
 if __name__ == '__main__':
-    client = Client('localhost', 9999)
+    client = Client('user01', 'user01', 'localhost', 9999)
 
 

@@ -28,7 +28,7 @@ def record_log(log_name):
                                   datefmt='%y/%m/%d %H:%M:%S')
     fh.setFormatter(formatter)
     logger.addHandler(fh)
-    return logger
 
+    return logger
 
 

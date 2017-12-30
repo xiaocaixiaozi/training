@@ -5,6 +5,7 @@
 import argparse
 import sys
 import os
+import getpass
 
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASEDIR)
@@ -26,11 +27,15 @@ def get_args():
 if __name__ == '__main__':
     args = get_args()
     host, port, user = args['server'], args['port'], args['user']
-    for i in range(3):
-        password = input('Password: ').strip()
-        if password:
-            break
-    else:
+    try:
+        for i in range(3):
+            password = getpass.getpass('Password: ').strip()
+            if password:
+                break
+        else:
+            sys.exit(1)
+    except KeyboardInterrupt as e:
+        print('Exit. [%s]' % e)
         sys.exit(1)
     client.Client(user, password, host, port)
 
