@@ -14,9 +14,8 @@ class Person(object):
         print('Name: %s, Age: %s' % (self.name, self.age))
 
     @info.setter
-    def info(self, name, age=22):
-        self.name = name
-        self.age = age
+    def info(self, the_info):
+        self.name, self.age = the_info
         self.info
 
     @info.deleter
@@ -24,9 +23,9 @@ class Person(object):
         del self.name
 
 
-person = Person('user01', '22')
-person.info
-person.info = ('user02', '23')
+# person = Person('user01', '22')
+# person.info
+# person.info = ('user02', '23')
 
 
 

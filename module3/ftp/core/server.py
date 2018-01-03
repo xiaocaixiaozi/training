@@ -111,16 +111,13 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         self.request.sendall(bytes('Ready...', encoding='utf-8'))
         filecount = 0
         w_file = open(os.path.basename(filename), 'wb')
-        while 1:
-            if filecount < int(filesize):
-                recv_data = self.request.recv(self.transfer_count)
-                w_file.write(recv_data)
-                filecount += self.transfer_count
-                continue
-            else:
-                w_file.flush()
-                w_file.close()
-                break
+        while filecount != int(filesize):
+            recv_data = self.request.recv(self.transfer_count)
+            w_file.write(recv_data)
+            filecount += len(recv_data)
+        else:
+            w_file.flush()
+            w_file.close()
 
     def _get(self):
         recv_data = self.recv.split()
@@ -180,7 +177,13 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def _del(self):
         recv_data = self.recv.split()
-        action, file_dir = recv_data[0], recv_data[1]
+        try:
+            action, file_dir = recv_data[0], recv_data[1]
+        except IndexError as e:
+            self.logger.error('[%s] Invalid command: %s' % \
+                              (str(self.client_address), e))
+            self.request.sendall(bytes('Invalid command.', encoding='utf-8'))
+            return False
         if not check_root(self.basedir, os.path.abspath(file_dir)):
             self.request.sendall(bytes('Can not change directory.', encoding='utf-8'))
             self.logger.warning('[%s] Delete file "%s" failed, %s' % \

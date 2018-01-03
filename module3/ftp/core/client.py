@@ -57,7 +57,10 @@ class Client(object):
 
     def _put(self):
         """上传文件"""
-        action, filename = self.data.split()[0], self.data.split()[1]
+        try:
+            action, filename = self.data.split()[0], self.data.split()[1]
+        except IndexError as e:
+            return False
         filesize = os.path.getsize(filename)
         self.client.sendall(bytes('%s %s %s' % (action, filename, filesize), encoding='utf-8'))
         sign = self.client.recv(self.transfer_size)
@@ -77,17 +80,14 @@ class Client(object):
             print(num_info)
             return False
         w_file = open(filename, 'wb')
-        while 1:
-            if filecount < filesize:
-                recv_data = self.client.recv(self.transfer_size)
-                w_file.write(recv_data)
-                filecount += len(recv_data)
-                w_file.flush()
-            else:
-                w_file.flush()
-                w_file.close()
-                print('Transfer completed.')
-                break
+        while filecount != filesize:
+            recv_data = self.client.recv(self.transfer_size)
+            w_file.write(recv_data)
+            filecount += len(recv_data)
+        else:
+            w_file.flush()
+            w_file.close()
+            print('Transfer completed.')
 
     def _comm(self):
         """匹配未指定命令"""

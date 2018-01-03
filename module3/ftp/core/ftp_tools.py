@@ -37,7 +37,7 @@ def record_log(log_level):
     except ValueError as e:
         print(e)
         return False
-    formatter = logging.Formatter(fmt='%(asctime)s [%(levelname)s] %(message)s', \
+    formatter = logging.Formatter(fmt='%(asctime)s [%(levelname)s] %(lineno)s %(message)s', \
                                   datefmt='%y/%m/%d %H:%M:%S')
     fh.setFormatter(formatter)
     logger.addHandler(fh)
