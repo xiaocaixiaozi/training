@@ -7,6 +7,7 @@ import subprocess
 import os
 import json
 import shutil
+import hashlib
 import sys
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASEDIR)
@@ -64,6 +65,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 count = 0
                 recv_list = []
                 num = self.request.recv(self.transfer_count)
+                if not num: break
                 try:
                     self.logger.debug('[%s] Recive data length: %s' % (str(self.client_address), num))
                     num = float(num.decode('utf-8'))
@@ -107,17 +109,34 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def _put(self):
         recv_data = self.recv.split()
-        action, filename, filesize = recv_data[0], recv_data[1], recv_data[2]
+        action, filename, filesize = recv_data[0], recv_data[1], int(recv_data[2])
         self.request.sendall(bytes('Ready...', encoding='utf-8'))
         filecount = 0
         w_file = open(os.path.basename(filename), 'wb')
-        while filecount != int(filesize):
-            recv_data = self.request.recv(self.transfer_count)
+        file_md5 = hashlib.md5()
+        while filecount < filesize:
+            lave_count = filesize - filecount
+            if lave_count < self.transfer_count:
+                recv_data = self.request.recv(lave_count)
+                file_md5.update(recv_data)
+            else:
+                recv_data = self.request.recv(self.transfer_count)
+                file_md5.update(recv_data)
             w_file.write(recv_data)
             filecount += len(recv_data)
         else:
             w_file.flush()
             w_file.close()
+            put_file_md5 = self.request.recv(self.transfer_count)
+            local_file_md5 = file_md5.hexdigest()
+            if put_file_md5.decode('utf-8') != local_file_md5:
+                self.request.sendall(bytes('File md5 value is wrong.', encoding='utf-8'))
+                self.logger.warning('[%s] File md5 value is wrong. [%s]' % \
+                                    (str(self.client_address), filename))
+            else:
+                self.request.sendall(bytes('File md5 value is correct.', encoding='utf-8'))
+                self.logger.warning('[%s] File md5 value is correct. [%s]' % \
+                                    (str(self.client_address), filename))
 
     def _get(self):
         recv_data = self.recv.split()
@@ -129,11 +148,16 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             return False
         filesize = os.path.getsize(filename)
         self.request.send(bytes(str(filesize), encoding='utf-8'))
+        file_md5 = hashlib.md5()
         try:
             with open(filename, 'rb') as f:
-                self.request.sendall(f.read())
-                self.logger.debug('[%s] File size: %s' % \
-                                  (str(self.client_address), os.path.getsize(filename)))
+                for line in f:
+                    self.request.sendall(line)
+                    file_md5.update(line)
+                else:
+                    self.request.sendall(bytes(file_md5.hexdigest(), encoding='utf-8'))     # 发送md5值
+                    self.logger.debug('[%s] File size: %s' % \
+                                      (str(self.client_address), os.path.getsize(filename)))
         except FileNotFoundError as e:
             self.logger.error('[%s] %s' % (str(self.client_address), e))
 

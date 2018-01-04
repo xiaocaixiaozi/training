@@ -5,6 +5,7 @@
 import socket
 import os
 import json
+import hashlib
 
 
 class Client(object):
@@ -64,9 +65,17 @@ class Client(object):
         filesize = os.path.getsize(filename)
         self.client.sendall(bytes('%s %s %s' % (action, filename, filesize), encoding='utf-8'))
         sign = self.client.recv(self.transfer_size)
+        file_md5 = hashlib.md5()
         if sign:
             with open(filename, 'rb') as f:
-                self.client.sendall(f.read())
+                for line in f:
+                    self.client.sendall(line)
+                    file_md5.update(line)
+                else:
+                    self.client.sendall(bytes(file_md5.hexdigest(), encoding='utf-8'))  # 发送md5值
+            print('Transafer completed.', file_md5.hexdigest())
+            check_md5_result = self.client.recv(self.transfer_size)
+            print(check_md5_result.decode('utf-8'))
 
     def _get(self):
         """下载文件"""
@@ -80,14 +89,26 @@ class Client(object):
             print(num_info)
             return False
         w_file = open(filename, 'wb')
-        while filecount != filesize:
-            recv_data = self.client.recv(self.transfer_size)
+        file_md5 = hashlib.md5()
+        while filecount < filesize:
+            lave_count = filesize - filecount
+            if lave_count < self.transfer_size:
+                recv_data = self.client.recv(lave_count)
+                file_md5.update(recv_data)
+            else:
+                recv_data = self.client.recv(self.transfer_size)
+                file_md5.update(recv_data)
             w_file.write(recv_data)
             filecount += len(recv_data)
         else:
             w_file.flush()
             w_file.close()
             print('Transfer completed.')
+            get_file_md5 = self.client.recv(self.transfer_size).decode('utf-8')
+            if get_file_md5 != file_md5.hexdigest():
+                print('File md5 value is wrong.')
+            else:
+                print('File md5 value is correct.')
 
     def _comm(self):
         """匹配未指定命令"""
@@ -105,5 +126,3 @@ class Client(object):
 
 if __name__ == '__main__':
     client = Client('user01', 'user01', 'localhost', 9999)
-
-
