@@ -44,10 +44,26 @@ def record_log(log_level):
     return logger
 
 
-def check_root(basedir, current_dir):
-    """不可切换目录，判断用户当前目录是否在根目录内，在，则返回True，否则返回False"""
-    if basedir not in current_dir:
-        return False
-    else:
-        return True
+def replace_relative_path(base_dir, current_dir, command):
+    """
+    格式化提交的命令中的目录
+    通过比对 base_dir(用户家目录), current_dir(当前目录), 用户请求目录 来确定当前操作位于哪个目录
+    """
+    if base_dir not in current_dir:
+        current_dir = base_dir
+    commands = command.split()
+    if len(commands) > 1:
+        if commands[1] == '.':      # 当前目录
+            return current_dir
+        elif commands[1] == '..':   # 上层目录
+            return os.path.dirname(current_dir)
+        elif commands[1] == '/':    # 用户家目录
+            return base_dir
+        elif commands[1].startswith('/'):   # 将"/"转换为家目录
+            the_path = os.sep.join(commands[1].lstrip('/').split('/'))
+            return os.path.join(base_dir, the_path)
+        else:
+            return os.path.join(current_dir, commands[1])
+    else:   # 如果用户没有输入目录，则默认为家目录
+        return base_dir
 

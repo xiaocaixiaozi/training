@@ -11,7 +11,7 @@ import hashlib
 import sys
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASEDIR)
-from core.ftp_tools import check_auth, hash_password, record_log, check_root
+from core.ftp_tools import check_auth, hash_password, record_log, replace_relative_path
 from core.read_config import GetConfig
 
 
@@ -56,10 +56,10 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             check = False
         else:
             self.logger.info('[{0}] "{1}" Auth success.'.format(str(self.client_address), self.account))
-        self.request.sendall(bytes('Welcome %s, Please enter "help" to help.' % str(self.client_address), \
-                                   encoding='utf-8'))
+        self.request.sendall(bytes('Welcome %s, Please enter "help" to help.' % \
+                                   str(self.client_address), encoding='utf-8'))
         self.basedir = self.BASEDIR + os.sep + 'dirs' + os.sep + self.account
-        os.chdir(self.basedir)  # 切换目录到用户家目录
+        # os.chdir(self.basedir)  # 切换目录到用户家目录
         while check:
             try:
                 count = 0
@@ -112,7 +112,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         action, filename, filesize = recv_data[0], recv_data[1], int(recv_data[2])
         self.request.sendall(bytes('Ready...', encoding='utf-8'))
         filecount = 0
-        w_file = open(os.path.basename(filename), 'wb')
+        w_file = open(os.path.join(self.basedir, filename), 'wb')
         file_md5 = hashlib.md5()
         while filecount < filesize:
             lave_count = filesize - filecount
@@ -139,25 +139,19 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                     (str(self.client_address), filename))
 
     def _get(self):
-        recv_data = self.recv.split()
-        action, filename = recv_data[0], recv_data[1]
-        if not check_root(self.basedir, os.path.abspath(filename)):
-            self.request.sendall(bytes('Can not change directory.', encoding='utf-8'))
-            self.logger.warning('[%s] List dir "%s" failed, %s' % \
-                                (str(self.client_address), os.path.abspath(filename), self.change_dir_error))
-            return False
-        filesize = os.path.getsize(filename)
+        expect_file = replace_relative_path(self.basedir, os.getcwd(), self.recv)
+        filesize = os.path.getsize(expect_file)
         self.request.send(bytes(str(filesize), encoding='utf-8'))
         file_md5 = hashlib.md5()
         try:
-            with open(filename, 'rb') as f:
+            with open(expect_file, 'rb') as f:
                 for line in f:
                     self.request.sendall(line)
                     file_md5.update(line)
                 else:
                     self.request.sendall(bytes(file_md5.hexdigest(), encoding='utf-8'))     # 发送md5值
                     self.logger.debug('[%s] File size: %s' % \
-                                      (str(self.client_address), os.path.getsize(filename)))
+                                      (str(self.client_address), os.path.getsize(expect_file)))
         except FileNotFoundError as e:
             self.logger.error('[%s] %s' % (str(self.client_address), e))
 
@@ -167,12 +161,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def _cd(self):
         e = ''
-        recv_data = self.recv.split()
-        if len(recv_data) > 1:
-            action, dirname = recv_data[0], recv_data[1]
-        else:
-            action, dirname = recv_data[0], '.'
-        if not check_root(self.basedir, os.path.abspath(dirname)):
+        dirname = replace_relative_path(self.basedir, os.getcwd(), self.recv)
+        if not os.path.exists(dirname):
             self.request.sendall(bytes('Can not change directory.', encoding='utf-8'))
             self.logger.warning('[%s] Change dir "%s" failed, %s' % \
                                 (str(self.client_address), os.path.abspath(dirname), self.change_dir_error))
@@ -184,34 +174,19 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(bytes(str(e), encoding='utf-8'))
 
     def _dir(self):
-        dirname = '.'
-        recv_data = self.recv.split()
-        if len(recv_data) > 1:
-            dirname = recv_data[1]
-        if not check_root(self.basedir, os.path.abspath(dirname)):
-            self.request.sendall(bytes('Can not change directory.', encoding='utf-8'))
-            self.logger.warning('[%s] List dir "%s" failed, %s' % \
-                                (str(self.client_address), os.path.abspath(dirname), self.change_dir_error))
-            return False
+        dirname = replace_relative_path(self.basedir, os.getcwd(), self.recv)
         data = os.listdir(dirname)
         if not data:
-            self.request.sendall(bytes('[]', encoding='utf-8'))
+            self.request.sendall(bytes(' ', encoding='utf-8'))
         else:
             self.request.sendall(bytes('\n'.join(data), encoding='utf-8'))
 
     def _del(self):
-        recv_data = self.recv.split()
-        try:
-            action, file_dir = recv_data[0], recv_data[1]
-        except IndexError as e:
+        file_dir = replace_relative_path(self.basedir, os.getcwd(), self.recv)
+        if file_dir == self.basedir:
             self.logger.error('[%s] Invalid command: %s' % \
-                              (str(self.client_address), e))
+                              (str(self.client_address), self.recv))
             self.request.sendall(bytes('Invalid command.', encoding='utf-8'))
-            return False
-        if not check_root(self.basedir, os.path.abspath(file_dir)):
-            self.request.sendall(bytes('Can not change directory.', encoding='utf-8'))
-            self.logger.warning('[%s] Delete file "%s" failed, %s' % \
-                                (str(self.client_address), os.path.abspath(file_dir), self.change_dir_error))
             return False
         if not os.path.exists(file_dir):
             self.request.sendall(bytes('File Not Found.', encoding='utf-8'))
