@@ -127,7 +127,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         self.request.sendall(bytes('Ready...', encoding='utf-8'))
         filecount = 0
         w_file = open(os.path.join(self.current_dir, filename), 'wb')
-        self.record = re_conn(self.client_address[0], self.account, action, filename)
         file_md5 = hashlib.md5()
         while filecount < filesize:
             lave_count = filesize - filecount
@@ -161,8 +160,14 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         try:
             with open(expect_file, 'rb') as f:
                 for line in f:
-                    self.request.sendall(line)
-                    file_md5.update(line)
+                    get_sign = self.request.recv(self.transfer_count)
+                    if get_sign.decode('utf-8') != 'pause':
+                        self.request.sendall(line)
+                        file_md5.update(line)
+                    else:
+                        self.logger.warning('[%s] Transafer "%s" pause.' % \
+                                            (str(self.client_address), expect_file))
+                        return False
                 else:
                     self.request.sendall(bytes(file_md5.hexdigest(), encoding='utf-8'))     # 发送md5值
                     self.logger.debug('[%s] File size: %s' % \
@@ -246,17 +251,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         except Exception as e:
             self.request.sendall(bytes(str(e), 'utf-8'))
             self.logger.error('[%s] %s' % (str(self.client_address), e))
-
-
-def re_conn(host, account, sign, filename):
-    record_file = MyTCPHandler.BASEDIR + os.sep + 'temp' + os.sep + sign + os.sep + host
-    if not os.path.exists(record_file):
-        the_dict = {'host': host, 'account': account, 'filename': filename, 'schedule': 0}
-        return the_dict
-    else:
-        with open(record_file) as f:
-            the_dict = json.load(f)
-        return the_dict
 
 
 def run(host, port):
