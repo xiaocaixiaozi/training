@@ -9,8 +9,8 @@ import argparse
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(BASEDIR)
 
-from core import create_account
-from core import server
+from server import create_account
+from server import ftp_server
 
 def get_args():
     arg = argparse.ArgumentParser(prog='FTP', description='FTP Server')
@@ -34,9 +34,7 @@ if __name__ == '__main__':
         elif args['listen']:    # 运行服务器端
             addr, port = args['address'], args['port']
             print('Running server...[%s:%s]' % (addr, port))
-            server.run(addr, port)
+            ftp_server.run(addr, port)
     except KeyboardInterrupt as e:
         sys.exit(1)
-
-
 

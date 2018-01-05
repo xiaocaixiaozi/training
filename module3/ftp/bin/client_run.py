@@ -10,7 +10,7 @@ import getpass
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASEDIR)
 
-from core import client
+from client import ftp_client
 
 
 def get_args():
@@ -37,9 +37,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt as e:
         print('Exit. [%s]' % e)
         sys.exit(1)
-    client.Client(user, password, host, port)
-
-
-
-
+    ftp_client.Client(user, password, host, port)
 

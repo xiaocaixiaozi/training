@@ -11,8 +11,8 @@ import hashlib
 import sys
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASEDIR)
-from core.ftp_tools import check_auth, hash_password, record_log, replace_relative_path
-from core.read_config import GetConfig
+from server.ftp_tools import check_auth, hash_password, record_log, replace_relative_path, check_input
+from server.read_config import GetConfig
 
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
@@ -26,6 +26,8 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         'dir': 'List Dir',
         'get': 'Download File',
         'put': 'Upload File',
+        'pwd': 'Get current directory',
+        'mkdir': 'Create directory',
         'help': 'Show This Page',
         'del': 'Delete file or directory',
         'bye': 'Exit.'
@@ -59,13 +61,15 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         self.request.sendall(bytes('Welcome %s, Please enter "help" to help.' % \
                                    str(self.client_address), encoding='utf-8'))
         self.basedir = self.BASEDIR + os.sep + 'dirs' + os.sep + self.account
+        self.current_dir = self.basedir
         # os.chdir(self.basedir)  # 切换目录到用户家目录
         while check:
             try:
                 count = 0
                 recv_list = []
                 num = self.request.recv(self.transfer_count)
-                if not num: break
+                if not num:
+                    break
                 try:
                     self.logger.debug('[%s] Recive data length: %s' % (str(self.client_address), num))
                     num = float(num.decode('utf-8'))
@@ -85,16 +89,20 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     action = self.recv.split()[0]
                 except IndexError as e:
                     self.logger.error('[%s] %s' % (str(self.client_address), e))
-                    continue
+                    break
                 if action == 'bye':
                     self.finish()
+                    break
                 if action not in self.comm_dict:
                     self.logger.debug('[%s] Invalid command: %s' % (str(self.client_address), self.recv))
                     self.request.sendall(bytes('Invalid Command.', encoding='utf-8'))
                     continue
                 func = getattr(self, '_%s' % action, self._comm)
                 self.logger.debug('[%s] Action: _%s' % (str(self.client_address), action))
-                func()
+                try:
+                    func()
+                except Exception as e:
+                    break
                 continue
             except (ConnectionResetError, ConnectionAbortedError) as e:
                 self.logger.error('[%s] %s' % (self.client_address, e))
@@ -103,16 +111,23 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                 self.logger.error('[%s] %s' % (self.client_address, e))
                 self.request.sendall(bytes('Error...[File Not Found]', encoding='utf-8'))
                 continue
+            except Exception as e:
+                break
 
     def finish(self):
         self.logger.warning('[{0}] {0} is disconnected.'.format(str(self.client_address)))
 
     def _put(self):
         recv_data = self.recv.split()
-        action, filename, filesize = recv_data[0], recv_data[1], int(recv_data[2])
+        try:
+            action, filename, filesize = recv_data[0], recv_data[1], int(recv_data[2])
+        except Exception as e:
+            self.finish()
+            return False
         self.request.sendall(bytes('Ready...', encoding='utf-8'))
         filecount = 0
-        w_file = open(os.path.join(self.basedir, filename), 'wb')
+        w_file = open(os.path.join(self.current_dir, filename), 'wb')
+        self.record = re_conn(self.client_address[0], self.account, action, filename)
         file_md5 = hashlib.md5()
         while filecount < filesize:
             lave_count = filesize - filecount
@@ -139,7 +154,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                     (str(self.client_address), filename))
 
     def _get(self):
-        expect_file = replace_relative_path(self.basedir, os.getcwd(), self.recv)
+        expect_file = replace_relative_path(self.basedir, self.current_dir, self.recv)
         filesize = os.path.getsize(expect_file)
         self.request.send(bytes(str(filesize), encoding='utf-8'))
         file_md5 = hashlib.md5()
@@ -155,26 +170,48 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         except FileNotFoundError as e:
             self.logger.error('[%s] %s' % (str(self.client_address), e))
 
+    def _pwd(self):
+        the_dir = self.current_dir.replace(self.basedir, os.sep)
+        self.request.sendall(bytes(the_dir, encoding='utf-8'))
+        self.logger.info('[%s] Get directory "%s" success.' % \
+                         (str(self.client_address), the_dir))
+
+    def _mkdir(self):
+        recv_data = self.recv.split()
+        if len(recv_data) == 0:
+            self.request.sendall(bytes('Invalid command.', encoding='utf-8'))
+            self.logger.warning('[%s] Invalid command: "%s"' %\
+                                (str(self.client_address), self.recv))
+            return False
+        else:
+            the_dir = recv_data[1]
+            os.mkdir(os.path.join(self.current_dir, the_dir))
+            self.request.sendall(bytes('Create directory [%s] success.' % the_dir, encoding='utf-8'))
+            self.logger.info('[%s] Create directory "%s" success.' % \
+                             (str(self.client_address), the_dir))
+
     def _help(self):
         send_data = json.dumps(self.comm_dict)
         self.request.sendall(bytes(send_data, encoding='utf-8'))
 
     def _cd(self):
         e = ''
-        dirname = replace_relative_path(self.basedir, os.getcwd(), self.recv)
+        dirname = replace_relative_path(self.basedir, self.current_dir, self.recv)
+        self.current_dir = dirname
         if not os.path.exists(dirname):
             self.request.sendall(bytes('Can not change directory.', encoding='utf-8'))
             self.logger.warning('[%s] Change dir "%s" failed, %s' % \
                                 (str(self.client_address), os.path.abspath(dirname), self.change_dir_error))
             return False
         try:
-            subprocess.os.chdir(dirname)
+            # subprocess.os.chdir(dirname)
+            self.current_dir = os.path.join(self.basedir, dirname)
             self.request.sendall(bytes('Operate Success.', encoding='utf-8'))
         except Exception as e:
             self.request.sendall(bytes(str(e), encoding='utf-8'))
 
     def _dir(self):
-        dirname = replace_relative_path(self.basedir, os.getcwd(), self.recv)
+        dirname = replace_relative_path(self.basedir, self.current_dir, self.recv)
         data = os.listdir(dirname)
         if not data:
             self.request.sendall(bytes(' ', encoding='utf-8'))
@@ -182,7 +219,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.request.sendall(bytes('\n'.join(data), encoding='utf-8'))
 
     def _del(self):
-        file_dir = replace_relative_path(self.basedir, os.getcwd(), self.recv)
+        file_dir = replace_relative_path(self.basedir, self.current_dir, self.recv)
         if file_dir == self.basedir:
             self.logger.error('[%s] Invalid command: %s' % \
                               (str(self.client_address), self.recv))
@@ -209,6 +246,17 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         except Exception as e:
             self.request.sendall(bytes(str(e), 'utf-8'))
             self.logger.error('[%s] %s' % (str(self.client_address), e))
+
+
+def re_conn(host, account, sign, filename):
+    record_file = MyTCPHandler.BASEDIR + os.sep + 'temp' + os.sep + sign + os.sep + host
+    if not os.path.exists(record_file):
+        the_dict = {'host': host, 'account': account, 'filename': filename, 'schedule': 0}
+        return the_dict
+    else:
+        with open(record_file) as f:
+            the_dict = json.load(f)
+        return the_dict
 
 
 def run(host, port):

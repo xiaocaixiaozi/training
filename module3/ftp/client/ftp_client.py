@@ -41,10 +41,19 @@ class Client(object):
                     print(e)
                     continue
                 except KeyboardInterrupt as e:
-                    self.__del__()
+                    break
                 except ConnectionAbortedError as e:
                     print(e)
-                    self.__del__()
+                    break
+                except ConnectionRefusedError as e:
+                    print(e)
+                    break
+                except IndexError as e:
+                    print(e)
+                    continue
+                except Exception as e:
+                    print(e)
+                    break
 
     def _help(self):
         """帮助命令"""
@@ -61,6 +70,8 @@ class Client(object):
         try:
             action, filename = self.data.split()[0], self.data.split()[1]
         except IndexError as e:
+            self.client.sendall(bytes('bloke_error', encoding='utf-8'))
+            print(self.client.recv(self.transfer_size).decode('utf-8'))
             return False
         filesize = os.path.getsize(filename)
         self.client.sendall(bytes('%s %s %s' % (action, filename, filesize), encoding='utf-8'))
@@ -80,7 +91,12 @@ class Client(object):
     def _get(self):
         """下载文件"""
         filecount = 0
-        action, filename = self.data.split()[0], os.path.basename(self.data.split()[1])
+        try:
+            action, filename = self.data.split()[0], os.path.basename(self.data.split()[1])
+        except IndexError as e:
+            self.client.sendall(bytes('bloke_error', encoding='utf-8'))
+            print(self.client.recv(self.transfer_size).decode('utf-8'))
+            return False
         self.client.sendall(self.data.encode('utf-8'))
         num_info = self.client.recv(self.transfer_size)
         try:

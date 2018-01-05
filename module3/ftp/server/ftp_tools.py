@@ -51,6 +51,7 @@ def replace_relative_path(base_dir, current_dir, command):
     """
     if base_dir not in current_dir:
         current_dir = base_dir
+    command.replace('\\', '/')
     commands = command.split()
     if len(commands) > 1:
         if commands[1] == '.':      # 当前目录
@@ -65,5 +66,15 @@ def replace_relative_path(base_dir, current_dir, command):
         else:
             return os.path.join(current_dir, commands[1])
     else:   # 如果用户没有输入目录，则默认为家目录
-        return base_dir
+        return current_dir
+
+
+def check_input(data):
+    """判断用户输入的判断值"""
+    if data.lower() == 'y':
+        return True
+    elif data.lower() == 'n':
+        return False
+    else:
+        return False
 
