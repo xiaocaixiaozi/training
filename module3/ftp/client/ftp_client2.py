@@ -82,22 +82,23 @@ class Client(object):
             return False
         filesize = os.path.getsize(filename)
         self.client.sendall(bytes('%s %s %s' % (action, filename, filesize), encoding='utf-8'))
-        sign = self.client.recv(self.transfer_size)
+        pre_data = self.client.recv(self.transfer_size).decode('utf-8')     # 接受服务器端要求传输的位置，用来断点续传
+        start_file_place, sign = pre_data.split()  # 接收两个值，[文件开始位置，发送信号]
         file_md5 = hashlib.md5()
         if sign:
             with open(filename, 'rb') as f:
+                f.seek(int(start_file_place))
                 for line in f:
                     self.client.sendall(line)
                     file_md5.update(line)
                 else:
                     self.client.sendall(bytes(file_md5.hexdigest(), encoding='utf-8'))  # 发送md5值
-            print('Transafer completed.', file_md5.hexdigest())
+            print('Transafer completed, md5 value:', file_md5.hexdigest())
             check_md5_result = self.client.recv(self.transfer_size)
             print(check_md5_result.decode('utf-8'))
 
     def _get(self):
         """下载文件"""
-        filecount = 0
         try:
             action, filename = self.data.split()[0], os.path.basename(self.data.split()[1])
         except IndexError as e:     # 没有指定文件名
@@ -111,9 +112,15 @@ class Client(object):
         except Exception as e:
             print(num_info)
             return False
-        w_file = open(filename, 'wb')
+        w_file = open(filename, 'ab')
         file_md5 = hashlib.md5()
-        self.record = re_conn(self.host, self.account, action, filename)    # 文件传输记录，支持断点续传
+        if os.path.exists(filename):    # 判断文件是否存在，用于断点续传，
+            current_file_size = os.path.getsize(filename)
+        else:
+            current_file_size = 0
+        self.client.sendall(bytes(str(current_file_size), encoding='utf-8'))    # 发送文件开始位置给服务器
+        get_sign = self.client.recv(self.transfer_size)     # 接受服务器端传送信号，用于解决粘包
+        filecount = current_file_size
         try:
             while filecount < filesize:
                 lave_count = filesize - filecount
@@ -122,12 +129,12 @@ class Client(object):
                     w_file.write(recv_data)
                     file_md5.update(recv_data)
                     filecount += len(recv_data)
-                    print('total: %s, current: %s' % (filesize, filecount))
                 else:
                     recv_data = self.client.recv(self.transfer_size)
                     w_file.write(recv_data)
                     file_md5.update(recv_data)
                     filecount += len(recv_data)
+                print('total: %s, current: %s' % (filesize, filecount))
             else:
                 w_file.flush()
                 w_file.close()
@@ -137,8 +144,7 @@ class Client(object):
                 else:
                     print('Transfer completed. File md5 value is correct.'.center(60, '*'))
         except KeyboardInterrupt as e:
-            print('pause'.center(50, '*'))
-            self.client.sendall(bytes('pause', encoding='utf-8'))   # 暂停
+            self.__del__()
             return False
 
     def _comm(self):

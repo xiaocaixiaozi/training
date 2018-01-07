@@ -103,6 +103,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     try:
                         func()
                     except Exception as e:
+                        print(e)
                         self.logger.error('[%s] %s' % (str(self.client_address), e))
                         break
                 except (ConnectionResetError, ConnectionAbortedError) as e:
@@ -130,17 +131,29 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         except Exception as e:
             self.finish()
             return False
-        self.request.sendall(bytes('Ready...', encoding='utf-8'))
-        filecount = 0
-        w_file = open(os.path.join(self.current_dir, filename), 'wb')
+        file_name = os.path.join(self.current_dir, filename)
+        if os.path.exists(file_name):
+            file_current_size = os.path.getsize(file_name)
+        else:
+            file_current_size = 0
+        self.request.sendall(bytes('%s Ready...' % file_current_size, encoding='utf-8'))
+        filecount = file_current_size
+        w_file = open(os.path.join(self.current_dir, filename), 'ab')
         file_md5 = hashlib.md5()
         while filecount < filesize:
             lave_count = filesize - filecount
+            print('total: %s, current: %s' % (filesize, filecount))
             if lave_count < self.transfer_count:
                 recv_data = self.request.recv(lave_count)
+                if not recv_data:
+                    print('done....')
+                    return False
                 file_md5.update(recv_data)
             else:
                 recv_data = self.request.recv(self.transfer_count)
+                if not recv_data:
+                    print('done....')
+                    return False
                 file_md5.update(recv_data)
             w_file.write(recv_data)
             filecount += len(recv_data)
@@ -165,9 +178,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             return False
         filesize = os.path.getsize(expect_file)
         self.request.send(bytes(str(filesize), encoding='utf-8'))
+        file_start_place = self.request.recv(self.transfer_count).decode()   # 接受客户端要求传送的起始位置
+        self.request.sendall(bytes('Ready...', encoding='utf-8'))   # 发送传送信号
         file_md5 = hashlib.md5()
         try:
             with open(expect_file, 'rb') as f:
+                f.seek(int(file_start_place))
                 for line in f:
                     self.request.sendall(line)
                     file_md5.update(line)
