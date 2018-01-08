@@ -4,12 +4,12 @@ Welcome to FTP!
 
 *****
 ## 功能
-    1、提供FTP服务器、客户端之间使用命令、传输文件，目前支持命令:[cd、dir、get、put、help、del、bye]，
-    2、可以自定义添加，在bin\server.py中修改comm_dict即可，如果客户端使用没有定义的命令，则提示"Invalid command."
-    3、客户端在登录后，不可切换目录到家目录之外，否则会提示"Can not change directory."
-    4、对每个账户默认的磁盘配额设置为1M，在conf/config.ini文件中server项的quota字段，以MB为单位，也可单独对账户配置，
-      修改conf/quota.ini 文件，格式为 [账户名] = [配额大小] ，单位为MB，此配置项会覆盖config.ini中的quota配置
-    5、现有账号：user01:user01; user02:user02; user03:user03  [ 账号密码相同 ]
+    1、提供FTP服务器、客户端之间使用命令、传输文件，目前支持命令:[cd、dir、get、put、help、del、bye]，
+    2、可以自定义添加，在bin\server.py中修改comm_dict即可，如果客户端使用没有定义的命令，则提示"Invalid command."
+    3、客户端在登录后，不可切换目录到家目录之外，否则会提示"Can not change directory."
+    4、对每个账户默认的磁盘配额设置为1M，在conf/config.ini文件中server项的quota字段，以MB为单位，也可单独对账户配置，
+      修改conf/quota.ini 文件，格式为 [账户名] = [配额大小] ，单位为MB，此配置项会覆盖config.ini中的quota配置
+    5、现有账号：user01:user01; user02:user02; user03:user03  [ 账号密码相同 ]
 
 ## 结构
     FTP
