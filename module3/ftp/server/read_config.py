@@ -28,10 +28,3 @@ class GetConfig(object):
         """修改方法，返回ConfigParser对象"""
         return self.config
 
-
-
-
-
-
-
-

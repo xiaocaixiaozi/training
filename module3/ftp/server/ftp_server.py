@@ -142,17 +142,14 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         file_md5 = hashlib.md5()
         while filecount < filesize:
             lave_count = filesize - filecount
-            print('total: %s, current: %s' % (filesize, filecount))
             if lave_count < self.transfer_count:
                 recv_data = self.request.recv(lave_count)
                 if not recv_data:
-                    print('done....')
                     return False
                 file_md5.update(recv_data)
             else:
                 recv_data = self.request.recv(self.transfer_count)
                 if not recv_data:
-                    print('done....')
                     return False
                 file_md5.update(recv_data)
             w_file.write(recv_data)

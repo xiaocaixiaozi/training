@@ -85,15 +85,21 @@ class Client(object):
         pre_data = self.client.recv(self.transfer_size).decode('utf-8')     # 接受服务器端要求传输的位置，用来断点续传
         start_file_place, sign = pre_data.split()  # 接收两个值，[文件开始位置，发送信号]
         file_md5 = hashlib.md5()
+        start_file_place = int(start_file_place)
         if sign:
             with open(filename, 'rb') as f:
-                f.seek(int(start_file_place))
+                f.seek(start_file_place)
+                trans_percent = int(50 * (start_file_place / filesize))
+                print(('[%s>' % (trans_percent * '=')).ljust(50) + ']', end='\r')
                 for line in f:
                     self.client.sendall(line)
                     file_md5.update(line)
+                    start_file_place += len(line)
+                    trans_percent = int(50 * (start_file_place / filesize))
+                    print(('[%s>' % (trans_percent * '=')).ljust(50) + ']', end='\r')
                 else:
                     self.client.sendall(bytes(file_md5.hexdigest(), encoding='utf-8'))  # 发送md5值
-            print('Transafer completed, md5 value:', file_md5.hexdigest())
+            print('\nTransafer completed, md5 value: <%s>' % file_md5.hexdigest())
             check_md5_result = self.client.recv(self.transfer_size)
             print(check_md5_result.decode('utf-8'))
 
@@ -134,7 +140,8 @@ class Client(object):
                     w_file.write(recv_data)
                     file_md5.update(recv_data)
                     filecount += len(recv_data)
-                print('total: %s, current: %s' % (filesize, filecount))
+                trans_percent = int(50 * (filecount / filesize))
+                print(('[%s>' % (trans_percent * '=')).ljust(50) + ']', end='\r')
             else:
                 w_file.flush()
                 w_file.close()
