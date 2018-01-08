@@ -69,12 +69,20 @@ def replace_relative_path(base_dir, current_dir, command):
         return current_dir
 
 
-def check_input(data):
-    """判断用户输入的判断值"""
-    if data.lower() == 'y':
-        return True
-    elif data.lower() == 'n':
+def check_size(check_dir, quota_size, file_size=0, file_name=''):
+    print(check_dir, quota_size, file_size, file_name)
+    if not os.path.exists(check_dir):
         return False
+    used_size = 0
+    for top_dir, sub_dir, sub_file in os.walk(check_dir):
+        if sub_file:
+            for f in sub_file:
+                if os.path.join(top_dir, f) == file_name:
+                    continue
+                used_size += os.path.getsize(os.path.join(top_dir, f))
     else:
-        return False
+        free_size = quota_size - used_size - file_size
+        usage = '%0.2f' % (used_size / quota_size * 100)
+    print(used_size, free_size, usage)
+    return used_size, free_size, usage
 

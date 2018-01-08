@@ -83,6 +83,9 @@ class Client(object):
         filesize = os.path.getsize(filename)
         self.client.sendall(bytes('%s %s %s' % (action, filename, filesize), encoding='utf-8'))
         pre_data = self.client.recv(self.transfer_size).decode('utf-8')     # 接受服务器端要求传输的位置，用来断点续传
+        if pre_data == 'disk quota limit':
+            print('Error:', pre_data)
+            return False
         start_file_place, sign = pre_data.split()  # 接收两个值，[文件开始位置，发送信号]
         file_md5 = hashlib.md5()
         start_file_place = int(start_file_place)
@@ -168,32 +171,6 @@ class Client(object):
             self.client.close()
         finally:
             os._exit(1)
-
-
-def re_conn(host, account, sign, filename):
-    """
-    断电续传，隐藏文件记录文件传输进度: ".tmp"，通过json读取数据并返回
-    如果文件不存在，则通过对应的一下参数生成字典并返回
-    :param host: 服务器地址
-    :param account: 登录账户
-    :param sign: 操作文件动作，例如<put、get>
-    :param filename: 操作的文件名
-    :return: 返回记录，字典格式
-    """
-    record_file = '.tmp'
-    if not os.path.exists(record_file):
-        the_dict = {host: {account: {'filename': filename, 'schedule': 0}}}
-        return the_dict
-    else:
-        with open(record_file) as f:
-            the_dict = json.load(f)
-            if host not in the_dict:
-                the_dict[host] = {account: {filename: 0}}
-                return the_dict
-            if account not in the_dict[host]:
-                the_dict[host][account] = {filename: 0}
-                return the_dict
-        return the_dict
 
 
 if __name__ == '__main__':

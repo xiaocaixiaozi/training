@@ -11,7 +11,8 @@ import hashlib
 import sys
 BASEDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASEDIR)
-from server.ftp_tools import check_auth, hash_password, record_log, replace_relative_path, check_input
+from server.ftp_tools import check_auth, hash_password, record_log
+from server.ftp_tools import replace_relative_path, check_size
 from server.read_config import GetConfig
 
 
@@ -30,6 +31,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
         'mkdir': 'Create directory',
         'help': 'Show This Page',
         'del': 'Delete file or directory',
+        'quota': 'Display disk quota',
         'bye': 'Exit.'
     }
     loglevel = GetConfig(os.path.join(AUTHDIR, 'config.ini')).get_config('server')['loglevel']
@@ -53,6 +55,14 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def handle(self):
         check = True
+        if self.account in GetConfig(os.path.join(self.AUTHDIR, 'quota.ini')).get_config('quota'):
+            disk_quota = GetConfig(os.path.join(self.AUTHDIR, 'quota.ini')).get_config('quota')[self.account]
+        else:
+            disk_quota = GetConfig(os.path.join(self.AUTHDIR, 'config.ini')).get_config('server')['quota']
+        if not isinstance(disk_quota, int):
+            self.logger.error('Error config: [%s] disk quota: %s' % (self.account, disk_quota))
+            self.finish()
+        self.disk_quota = int(disk_quota) * 1024 * 1024
         if self.client_sign == 'bye':
             self.logger.warning('[%s] "%s" Auth failed.' % (str(self.client_address), self.account))
             check = False
@@ -62,7 +72,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                    str(self.client_address), encoding='utf-8'))
         self.basedir = self.BASEDIR + os.sep + 'dirs' + os.sep + self.account
         self.current_dir = self.basedir
-        # os.chdir(self.basedir)  # 切换目录到用户家目录
         try:
             while check:
                 try:
@@ -132,10 +141,27 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             self.finish()
             return False
         file_name = os.path.join(self.current_dir, filename)
+        check_result = check_size(self.basedir, self.disk_quota, filesize, file_name)
+        print('check_result:::::', check_result)
+        if not check_result:
+            self.finish()
+            return False
+        used_size, free_size, usage = check_result
+        print(free_size, type(free_size))
+        if free_size < 0:
+            self.request.sendall(bytes('disk quota limit', encoding='utf-8'))
+            self.logger.error('[%s] Disk quota limit, [filename: %s, filesize: %s]' % \
+                              (str(self.client_address), filename, filesize))
+            return False
         if os.path.exists(file_name):
             file_current_size = os.path.getsize(file_name)
         else:
             file_current_size = 0
+        # if self.disk_quota - os.path.getsize(filename) - filesize < 0:
+        #     self.request.sendall(bytes('disk quota limit', encoding='utf-8'))
+        #     self.logger.error('[%s] Disk quota limit, [filename: %s, filesize: %s]' % \
+        #                       (str(self.client_address), filename, filesize))
+        #     return False
         self.request.sendall(bytes('%s Ready...' % file_current_size, encoding='utf-8'))
         filecount = file_current_size
         w_file = open(os.path.join(self.current_dir, filename), 'ab')
@@ -230,7 +256,6 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                                 (str(self.client_address), os.path.abspath(dirname), self.change_dir_error))
             return False
         try:
-            # subprocess.os.chdir(dirname)
             self.current_dir = os.path.join(self.basedir, dirname)
             self.request.sendall(bytes('Operate Success.', encoding='utf-8'))
         except Exception as e:
@@ -264,6 +289,13 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             shutil.rmtree(file_dir)
             self.request.sendall(bytes('Delete Success.', encoding='utf-8'))
             self.logger.debug('[%s] Delete success: %s' % (str(self.client_address), file_dir))
+
+    def _quota(self):
+        used_size, free_size, usage = check_size(self.basedir, self.disk_quota)
+        self.request.sendall(bytes('Total: [%s]; Used: [%s]; Free: [%s]; Usage: [%s%%]' % \
+                                   (self.disk_quota, used_size, free_size, usage), encoding='utf-8'))
+        self.logger.info('[%s] %s: Total: [%s]; Used: [%s]; Free: [%s]; Usage: [%s%%]' % \
+                         (str(self.client_address), self.recv, self.disk_quota, used_size, free_size, usage))
 
     def _comm(self):
         try:
