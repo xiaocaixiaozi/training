@@ -99,7 +99,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                         action = self.recv.split()[0]
                     except IndexError as e:
                         self.logger.error('[%s] %s' % (str(self.client_address), e))
-                        break
+                        continue
                     if action == 'bye':
                         self.finish()
                         break
@@ -230,7 +230,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
     def _mkdir(self):
         recv_data = self.recv.split()
-        if len(recv_data) == 0:
+        if len(recv_data) == 1:
             self.request.sendall(bytes('Invalid command.', encoding='utf-8'))
             self.logger.warning('[%s] Invalid command: "%s"' %\
                                 (str(self.client_address), self.recv))
