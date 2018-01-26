@@ -76,7 +76,7 @@ host_list = {
 #    'H' : '172.27.26.52',
 #}
 #for h in area_list:
-#    for i,l in host_list.iteritems():
+#    for i,l in conf.yml.iteritems():
 #        for n in l:
 #            address_list[h + '_' + i] = area_list[h] + n
 
