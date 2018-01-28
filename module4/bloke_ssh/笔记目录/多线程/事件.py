@@ -8,7 +8,6 @@ import random
 
 event = threading.Event()
 
-
 def light():
     for i in range(3):
         print('Red lighting.')
@@ -18,7 +17,6 @@ def light():
         event.clear()
         time.sleep(5)
 
-
 def car(name):
     while True:
         if event.is_set():
@@ -27,7 +25,6 @@ def car(name):
         else:
             print('Running...%s' % name)
             time.sleep(random.randint(1,3))
-
 
 threads = []
 for car_name in ['first', 'second', 'three']:
@@ -41,4 +38,5 @@ for item in threads:
     item.start()
 for n in threads:
     n.join()
+
 

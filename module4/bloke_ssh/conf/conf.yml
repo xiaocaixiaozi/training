@@ -1,0 +1,20 @@
+---
+groups:
+  - other:
+      - gateway: hostname=172.28.8.80 port=22 username=root password=password
+      - varnish:
+          hostname: 172.28.8.82
+          port: 22
+          username: root
+          password: password
+  - mongo:
+      - mongo-1:
+          hostname: 172.28.8.77
+          password: password
+      - mongo-2:
+          hostname: 172.28.8.78
+          password: password
+      - mongo-3:
+          hostname: 172.28.8.79
+          username: root
+          password: password
