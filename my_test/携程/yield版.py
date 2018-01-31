@@ -2,21 +2,24 @@
 # coding=utf-8
 # Author: bloke
 
-def one():
-    while True:
-        print('In the first func.')
-        name = yield
-        print('name:', name)
 
-def two():
-    a.__next__()
+def generator():
     for i in range(5):
-        print('In the second func.')
-        a.send('bloke_%s' % i)
-
-if __name__ == '__main__':
-    a = one()
-    two()
+        name = yield
+        print('%s: %s' % (name, i))
 
 
+def consumer(gen1, gen2):
+    gen1.__next__()
+    gen2.__next__()
+    for i in range(5):
+        gen1.send('gen1')
+        gen2.send('gen2')
+        print('................................')
+
+
+if __name__ == "__main__":
+    g1 = generator()
+    g2 = generator()
+    consumer(g1, g2)
 
