@@ -5,7 +5,7 @@
 import socket
 
 client = socket.socket()
-client.connect(('localhost', 8080))
+client.connect(('localhost', 9999))
 
 try:
     while True:
