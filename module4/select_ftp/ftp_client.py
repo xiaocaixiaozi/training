@@ -23,6 +23,7 @@ class CLIENT(object):
                 continue
             self.client.sendall(bytes(send_data, 'utf-8'))
             recv_sign = self.client.recv(self.recv_size).decode('utf-8')
+            print(recv_sign)
             if not recv_sign.startswith('ready'):
                 print(recv_sign)
                 continue
@@ -41,9 +42,10 @@ class CLIENT(object):
                 data = self.client.recv(self.recv_size)
                 total_size += len(data)
                 f.write(data)
-                print('|', ('>' * int(total_size / size * 50)).ljust(50, '-'), '|', end='\r')
+                print('|' + ('>' * int(total_size / size * 50)).ljust(50, '-') + '|', end='\r')
             else:
                 print('\nDone.')
+
 
 if __name__ == '__main__':
     client = CLIENT()

@@ -7,13 +7,13 @@ import selectors
 import os
 
 
-def accept(sock):
+def accept(sock, mask):
     conn, addr = sock.accept()
     print('Client [%s: %s] is connected.' % conn.getpeername())
     sel.register(conn, selectors.EVENT_READ, read)
 
 
-def read(conn):
+def read(conn, mask):
 
     client_addr = conn.getpeername()
     try:
@@ -29,12 +29,9 @@ def read(conn):
                 conn.sendall(bytes('Invalid command.', 'utf-8'))
             elif client_command == 'get':
                 filename = client_data[1]
-                if not os.path.exists(filename):
-                    conn.sendall(bytes('File not found. [%s]' % filename, 'utf-8'))
-                else:
-                    conn.sendall(bytes('ready%s-->%s' % (filename, os.path.getsize(filename)), 'utf-8'))
                     # client_sign = conn.recv(trans_size)
                     # if client_sign.decode('utf-8') == 'ok':
+                # get(conn, filename, trans_size)
                 get(conn, filename, trans_size)
             # elif client_command == 'put':
             #     filename = client_data[1]
@@ -50,15 +47,23 @@ def read(conn):
 
 
 def get(client, filename, trans_size):
+    if not os.path.exists(filename):
+        client.sendall(bytes('File not found. [%s]' % filename, 'utf-8'))
+    else:
+        client.sendall(bytes('ready%s-->%s' % (filename, os.path.getsize(filename)), 'utf-8'))
+        # client.setblocking(True)
     # if not os.path.exists(filename):
     #     client.sendall(bytes('File not found. [%s]' % filename, 'utf-8'))
     # else:
     #     client.sendall(bytes('ready%s-->%s' % (filename, os.path.getsize(filename)), 'utf-8'))
-        # client_sign = client.recv(trans_size)
+    #     client_sign = client.recv(trans_size)
         # if client_sign.decode('utf-8') == 'ok':
-        with open(filename, 'rb') as f:
-            for line in f:
-                client.sendall(line)
+        try:
+            with open(filename, 'rb') as f:
+                for line in f:
+                    client.sendall(line)
+        except BlockingIOError as e:
+            print(e)
 
 
 if __name__ == '__main__':
@@ -82,6 +87,6 @@ if __name__ == '__main__':
         readys = sel.select()
         for key, event in readys:
             call = key.data
-            call(key.fileobj)
+            call(key.fileobj, event)
 
 
